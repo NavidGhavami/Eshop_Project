@@ -16,6 +16,11 @@ public class User : BaseEntity
 
     public string? Email { get; set; }
 
+    [Display(Name = "کد فعالسازی ایمیل")]
+    [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
+    [MaxLength(100, ErrorMessage = "{0} نمی تواند بیشتر از {1} کاراکتر باشد")]
+    public string EmailActiveCode { get; set; }
+
     [Display(Name = "ایمیل فعال / غیرفعال")]
     public bool IsEmailActive { get; set; }
 
@@ -24,12 +29,12 @@ public class User : BaseEntity
     [MaxLength(200, ErrorMessage = "{0} نمی تواند بیشتر از {1} کاراکتر باشد")]
     public string Mobile { get; set; }
 
-    //[Required(ErrorMessage = "لطفا {0} را وارد کنید")]
-    //[MaxLength(20, ErrorMessage = "{0} نمی تواند بیشتر از {1} کاراکتر باشد")]
-    //public string MobileActiveCode { get; set; }
+    [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
+    [MaxLength(20, ErrorMessage = "{0} نمی تواند بیشتر از {1} کاراکتر باشد")]
+    public string MobileActiveCode { get; set; }
 
-    //[Display(Name = "موبایل فعال / غیرفعال")]
-    //public bool IsMobileActive { get; set; }
+    [Display(Name = "موبایل فعال / غیرفعال")]
+    public bool IsMobileActive { get; set; }
 
     [Display(Name = "کلمه ی عبور")]
     [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
@@ -56,6 +61,8 @@ public class User : BaseEntity
 
 
     #endregion
+
+
 
     #region MyRegion
 
