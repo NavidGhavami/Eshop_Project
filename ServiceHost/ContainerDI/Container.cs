@@ -1,4 +1,10 @@
-﻿using Eshop.Domain.Repository;
+﻿using Eshop.Application.Services.Implementations;
+using Eshop.Application.Services.Interfaces;
+using Eshop.Domain.Context;
+using Eshop.Domain.Repository;
+using MarketPlace.Application.Services.Implementations;
+using MarketPlace.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
 
 namespace ServiceHost.ContainerDI
 {
@@ -8,14 +14,22 @@ namespace ServiceHost.ContainerDI
         {
             #region Repositories
 
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            
 
             #endregion
 
             #region General Services
 
-            services.AddHttpContextAccessor();
+            services.AddTransient<IUserService, UserService>();
 
+
+            #endregion
+
+            #region Common Services
+
+            services.AddHttpContextAccessor();
+            services.AddTransient<IPasswordHasher, PasswordHasher>();
 
             #endregion
         }

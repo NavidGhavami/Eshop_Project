@@ -3,6 +3,8 @@ using Eshop.Domain.Dtos.Account.User;
 using Eshop.Domain.Entites.Account.Role;
 using Eshop.Domain.Entites.Account.User;
 using Eshop.Domain.Repository;
+using MarketPlace.Application.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Eshop.Application.Services.Implementations
 {
@@ -13,29 +15,65 @@ namespace Eshop.Application.Services.Implementations
 
         private readonly IGenericRepository<User> _userRepository;
         private readonly IGenericRepository<Role> _roleRepository;
+        private readonly IPasswordHasher _passwordHasher;
 
 
         #endregion
 
         #region Constructor
 
-        public UserService(IGenericRepository<User> userRepository, IGenericRepository<Role> roleRepository)
+        public UserService(IGenericRepository<User> userRepository, IGenericRepository<Role> roleRepository, IPasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
+            _passwordHasher = passwordHasher;
         }
 
         #endregion
 
         #region Account
-        public Task<RegisterUserResult> RegisterUser(RegisterUserDto register)
+        public async Task<RegisterUserResult> RegisterUser(RegisterUserDto register)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (!await IsUserExistByMobileNumber(register.Mobile))
+                {
+                    var user = new User
+                    {
+                        FirstName = register.FirstName,
+                        LastName = register.LastName,
+                        Email = register.Email,
+                        Mobile = register.Mobile,
+                        Password = _passwordHasher.EncodePasswordMd5(register.Password),
+                        MobileActiveCode = new Random().Next(10000,99999).ToString(),
+                        EmailActiveCode = Guid.NewGuid().ToString("N"),
+                        Avatar = null,
+                        RoleId = 2,
+                    };
+
+                    await _userRepository.AddEntity(user);
+                    await _userRepository.SaveChanges();
+
+                    return RegisterUserResult.Success;
+                }
+                else
+                {
+                    return RegisterUserResult.MobileExists;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
-        public Task<bool> IsUserExistByMobileNumber(string mobile)
+        public async Task<bool> IsUserExistByMobileNumber(string mobile)
         {
-            throw new NotImplementedException();
+            return await _userRepository
+                .GetQuery()
+                .AsQueryable()
+                .AnyAsync(x => x.Mobile == mobile);
         }
 
         #endregion

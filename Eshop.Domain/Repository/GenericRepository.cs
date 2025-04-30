@@ -16,7 +16,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
 
     #region Constructor
 
-    public GenericRepository(DatabaseContext context, DbSet<TEntity> dbset)
+    public GenericRepository(DatabaseContext context)
     {
         _context = context;
         _dbset = context.Set<TEntity>();
