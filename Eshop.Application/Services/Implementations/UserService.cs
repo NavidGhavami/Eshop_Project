@@ -54,6 +54,8 @@ namespace Eshop.Application.Services.Implementations
                     await _userRepository.AddEntity(user);
                     await _userRepository.SaveChanges();
 
+                    //todo : Send Message to Mobile
+
                     return RegisterUserResult.Success;
                 }
                 else
