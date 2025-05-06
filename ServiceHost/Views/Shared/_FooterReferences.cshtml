@@ -10,26 +10,28 @@
 <script src="~/MainTemplate/assets/js/swiperInit.js"></script>
 <script src="~/MainTemplate/assets/js/megaMenu.js"></script>
 <script src="~/MainTemplate/assets/js/app.js"></script>
+<script src="~/MainTemplate/assets/js/Custom.js"></script>
+<script src="~/MainTemplate/assets/js/notifications.js"></script>
 
 <!-- initial config contact button  -->
 <script>
-        $('#btncollapzion').Collapzion({
-            _child_attribute: [{
-                'label': 'پشتیبانی تلفنی',
-                'url': 'tel:0930555555555',
-                'icon': 'bi bi-telephone'
+    $('#btncollapzion').Collapzion({
+        _child_attribute: [{
+            'label': 'پشتیبانی تلفنی',
+            'url': 'tel:0930555555555',
+            'icon': 'bi bi-telephone'
+        },
+            {
+                'label': 'پشتیبانی تلگرام',
+                'url': 'https://tlgrm.me',
+                'icon': 'bi bi-telegram'
             },
-                {
-                    'label': 'پشتیبانی تلگرام',
-                    'url': 'https://tlgrm.me',
-                    'icon': 'bi bi-telegram'
-                },
-                {
-                    'label': 'پشتیبانی واتس آپ',
-                    'url': 'https://wa.me/444444444',
-                    'icon': 'bi-whatsapp'
-                },
-            ],
-        });
-        stories()
-    </script>
+            {
+                'label': 'پشتیبانی واتس آپ',
+                'url': 'https://wa.me/444444444',
+                'icon': 'bi-whatsapp'
+            },
+        ],
+    });
+    stories()
+</script>

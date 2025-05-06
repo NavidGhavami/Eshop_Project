@@ -18,40 +18,40 @@
                                         <img src="~/MainTemplate/assets/image/logo.png" class="auth-logo" alt="">
                                     </a>
                                 </div>
-                                <form id="form-auth" class="py-3" asp-controller="Account" asp-action="RegisterUser" method="post">
+                                <form class="py-3" asp-area="" asp-controller="Account" asp-action="RegisterUser" method="post">
                                     <div class="comment-item mb-4">
-                                        <input type="text" asp-for="FirstName" class="form-control" id="username">
-                                        <label for="username" class="form-label label-float">
+                                        <input type="text" asp-for="FirstName" class="form-control">
+                                        <label class="form-label label-float">
                                             نام
                                         </label>
                                     </div>
                                     <div class="comment-item mb-4">
-                                        <input type="text" asp-for="LastName" class="form-control" id="username">
-                                        <label for="username" class="form-label label-float">
+                                        <input type="text" asp-for="LastName" class="form-control">
+                                        <label class="form-label label-float">
                                             نام خانوادگی
                                         </label>
                                     </div>
                                     <div class="comment-item mb-4">
-                                        <input type="text" asp-for="Mobile" class="form-control" id="password">
-                                        <label for="password" class="form-label label-float">
+                                        <input type="text" asp-for="Mobile" class="form-control">
+                                        <label class="form-label label-float">
                                             شماره همراه
                                         </label>
                                     </div>
                                     <div class="comment-item mb-3 step-username">
-                                        <input type="email" asp-for="Email" class="form-control" id="rePassword">
-                                        <label for="rePassword" class="form-label label-float">
+                                        <input type="email" asp-for="Email" class="form-control">
+                                        <label class="form-label label-float">
                                             ایمیل(اختیاری)
                                         </label>
                                     </div>
                                     <div class="comment-item mb-3 step-username">
-                                        <input type="password" asp-for="Password" class="form-control" id="rePassword">
-                                        <label for="rePassword" class="form-label label-float">
+                                        <input type="password" asp-for="Password" class="form-control">
+                                        <label class="form-label label-float">
                                             رمز عبور
                                         </label>
                                     </div>
                                     <div class="comment-item mb-3 step-username">
-                                        <input type="password" asp-for="Password" class="form-control" id="rePassword">
-                                        <label for="rePassword" class="form-label label-float">
+                                        <input type="password" asp-for="Password" class="form-control">
+                                        <label class="form-label label-float">
                                             تکرار رمز عبور
                                         </label>
                                     </div>
