@@ -78,6 +78,32 @@ namespace Eshop.Application.Services.Implementations
                 .AnyAsync(x => x.Mobile == mobile);
         }
 
+        public async Task<UserLoginResult> LoginUser(LoginUserDto login)
+        {
+            var user = await _userRepository.GetQuery()
+                .AsQueryable()
+                .SingleOrDefaultAsync(x => x.Mobile == login.Mobile);
+
+            if (user == null)
+            {
+                return UserLoginResult.UserNotFound;
+            }
+
+            if (!user.IsMobileActive)
+            {
+                return UserLoginResult.MobileNotActivated;
+            }
+
+            return user.Password != _passwordHasher.EncodePasswordMd5(login.Password)
+                ? UserLoginResult.UserNotFound : UserLoginResult.Success;
+        }
+
+        public async Task<User> GetUserByMobile(string mobile)
+        {
+            return await _userRepository.GetQuery()
+                .AsQueryable().SingleOrDefaultAsync(x => x.Mobile == mobile);
+        }
+
         #endregion
 
 

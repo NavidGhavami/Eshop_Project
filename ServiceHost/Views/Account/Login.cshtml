@@ -1,7 +1,7 @@
-﻿@model Eshop.Domain.Dtos.Account.User.RegisterUserDto
+﻿@model Eshop.Domain.Dtos.Account.User.LoginUserDto
 
 @{
-    ViewData["Title"] = "ثبت نام کاربر";
+    ViewData["Title"] = "ورود کاربر";
 }
 
 @section script {
@@ -17,27 +17,12 @@
                         <div class="col-lg-4">
                             <div class="auth-form shadow-xl rounded-3  mt-5 bg-white">
                                 <div class="auth-form-title header-logo d-flex align-items-center justify-content-between title-panel mb-4 slider-title-desc-center">
-                                    <h2 class="text-center h4 text-muted title-font"> ثبت نام</h2>
+                                    <h2 class="text-center h4 text-muted title-font"> ورود کاربر</h2>
                                     <a href="">
                                         <img src="~/MainTemplate/assets/image/logo.png" class="auth-logo" alt="">
                                     </a>
                                 </div>
-                                <form class="py-3" asp-area="" asp-controller="Account" asp-action="RegisterUser" method="post">
-                                    <div class="comment-item mb-4">
-                                        <input type="text" asp-for="FirstName" class="form-control">
-                                        <label class="form-label label-float">
-                                            نام <span class="text-danger">*</span>
-                                            <span asp-validation-for="FirstName" class="text-danger"></span>
-                                        </label>
-                                    </div>
-                                    <div class="comment-item mb-4">
-                                        <input type="text" asp-for="LastName" class="form-control">
-                                        <label class="form-label label-float">
-                                            نام خانوادگی
-                                            <span class="text-danger">*</span>
-                                            <span asp-validation-for="LastName" class="text-danger"></span>
-                                        </label>
-                                    </div>
+                                <form class="py-3" asp-area="" asp-controller="Account" asp-action="Login" method="post">
                                     <div class="comment-item mb-4">
                                         <input type="text" asp-for="Mobile" class="form-control">
                                         <label class="form-label label-float">
@@ -46,34 +31,24 @@
                                             <span asp-validation-for="Mobile" class="text-danger"></span>
                                         </label>
                                     </div>
-                                    <div class="comment-item mb-3 step-username">
-                                        <input type="email" asp-for="Email" class="form-control">
-                                        <label class="form-label label-float">
-                                            ایمیل
-                                            <span class="text-danger">(اختیاری)</span>
-                                        </label>
-                                    </div>
-                                    <div class="comment-item mb-3 step-username">
+                                    <div class="comment-item mb-4 position-relative step-passwd" style="">
                                         <input type="password" asp-for="Password" class="form-control">
                                         <label class="form-label label-float">
                                             رمز عبور
                                             <span class="text-danger">*</span>
                                             <span asp-validation-for="Password" class="text-danger"></span>
                                         </label>
-                                    </div>
-                                    <div class="comment-item mb-3 step-username">
-                                        <input type="password" asp-for="ConfirmPassword" class="form-control">
-                                        <label class="form-label label-float">
-                                            تکرار رمز عبور
-                                            <span class="text-danger">*</span>
-                                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                                        </label>
+                                        <div class="inline-btn-text">
+                                            <a asp-controller="Account" asp-action="ForgetPassword" class="btn border-0 main-color-three-bg text-white">
+                                                فراموشی رمز عبور
+                                            </a>
+                                        </div>
                                     </div>
                                     <div class="text-center">
-                                        <button type="submit" class="btn main-color-two-bg text-white w-100 mb-2 py-3">ثبت نام</button>
+                                        <button type="submit" class="btn main-color-two-bg text-white w-100 mb-2 py-3">ورود به سایت</button>
                                     </div>
                                     <div class="text-center">
-                                        <a asp-controller="Account" asp-action="Login" class="btn main-color-three-bg text-white w-100 py-3">حساب کاربری دارید؟ ورود</a>
+                                        <a asp-controller="Account" asp-action="RegisterUser" class="btn main-color-three-bg text-white w-100 py-3">حساب کاربری ندارید؟ ثبت نام</a>
                                     </div>
                                 </form>
 

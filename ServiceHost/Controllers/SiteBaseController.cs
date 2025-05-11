@@ -4,9 +4,9 @@ namespace ServiceHost.Controllers
 {
     public class SiteBaseController : Controller
     {
-        protected string ErrorMessage = "Error Message";
-        protected string SuccessMessage = "Success Message";
-        protected string InfoMessage = "Info Message";
-        protected string WarningMessage = "Warning Message";
+        protected string ErrorMessage = "ErrorMessage";
+        protected string SuccessMessage = "SuccessMessage";
+        protected string InfoMessage = "InfoMessage";
+        protected string WarningMessage = "WarningMessage";
     }
 }

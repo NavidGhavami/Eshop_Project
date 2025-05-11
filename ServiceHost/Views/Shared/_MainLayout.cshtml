@@ -8,6 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <partial name="_HeaderReferences"/>
+    @await RenderSectionAsync("style", false)
 
 </head>
 <body>
@@ -195,7 +196,8 @@
     
 
     <partial name="_FooterReferences"/>
-    <partial name="_SiteMessage"/>
+    @await RenderSectionAsync("script", false)
+    <partial name="_SiteMessages"/>
     
     
 

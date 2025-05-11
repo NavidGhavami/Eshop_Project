@@ -1,4 +1,6 @@
-﻿using Eshop.Application.Services.Implementations;
+﻿using System.Text.Encodings.Web;
+using System.Text.Unicode;
+using Eshop.Application.Services.Implementations;
 using Eshop.Application.Services.Interfaces;
 using Eshop.Domain.Context;
 using Eshop.Domain.Repository;
@@ -15,7 +17,7 @@ namespace ServiceHost.ContainerDI
             #region Repositories
 
             services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            
+
 
             #endregion
 
@@ -29,6 +31,8 @@ namespace ServiceHost.ContainerDI
             #region Common Services
 
             services.AddHttpContextAccessor();
+            services.AddSingleton<HtmlEncoder>(
+                HtmlEncoder.Create(allowedRanges: new[] { UnicodeRanges.BasicLatin, UnicodeRanges.Arabic }));
             services.AddTransient<IPasswordHasher, PasswordHasher>();
 
             #endregion

@@ -1,9 +1,9 @@
 ﻿@if (
-   TempData["SuccessMessage"] != null ||
-   TempData["ErrorMessage"] != null ||
-  TempData["InfoMessage"] != null ||
- TempData["WarningMessage"] != null
-   )
+    TempData["SuccessMessage"] != null ||
+    TempData["ErrorMessage"] != null ||
+    TempData["InfoMessage"] != null ||
+    TempData["WarningMessage"] != null
+)
 {
     if (TempData["SuccessMessage"] != null)
     {
@@ -23,15 +23,6 @@
         </script>
     }
 
-    if (TempData["InfoMessage"] != null)
-    {
-        <script>
-            $(document).ready(function () {
-                ShowMessage('پیغام اطلاعیه', '@TempData["InfoMessage"]', 'info');
-            });
-        </script>
-    }
-
     if (TempData["WarningMessage"] != null)
     {
         <script>
@@ -40,5 +31,13 @@
             });
         </script>
     }
-}
 
+    if (TempData["InfoMessage"] != null)
+    {
+        <script>
+            $(document).ready(function () {
+                ShowMessage('پیغام اطلاعیه', '@TempData["InfoMessage"]', 'info');
+            });
+        </script>
+    }
+}

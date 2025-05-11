@@ -4,7 +4,7 @@ function ShowMessage(title, text, theme) {
         closeOnClick: true,
         displayCloseButton: false,
         positionClass: 'nfc-bottom-right',
-        showDuration: 5000,
+        showDuration: 4000,
         theme: theme !== '' ? theme : 'success'
     })({
         title: title !== '' ? title : 'اعلان',
