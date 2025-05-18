@@ -342,17 +342,20 @@
             <div class="col-xl-6 order-xl-1 d-xl-block d-none">
                 <div class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
-                        <a class="btn btn-info" asp-controller="Account" asp-action="Login">
-                            <i class="bi bi-person"></i>
-                            @if (User.Identity.IsAuthenticated)
-                            {
-                                <span class="fw-bold ms-1">خوش آمدید</span>
-                            }
-                            else
-                            {
-                                <span class="fw-bold ms-1">وارد شوید</span>
-                            }
-                        </a>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a class="btn btn-info" asp-controller="Account" asp-action="Logout">
+                                <i class="bi bi-person"></i>
+                                <span class="fw-bold ms-1">پنل کاربری</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-info" asp-controller="Account" asp-action="Login">
+                                <i class="bi bi-person"></i>
+                                <span class="fw-bold ms-1">ورود کاربر</span>
+                            </a>
+                        }
                     </div>
                     <div class="pip mx-2"></div>
                     <nav class="navbar navbar-expand">
@@ -371,6 +374,13 @@
                             <li class="nav-item">
                                 <a href="" class="nav-link font-12 bs-text-gray-600">تماس با ما</a>
                             </li>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item">
+                                    <a asp-controller="Account" asp-action="Logout" 
+                                       class="nav-link font-12 bs-text-gray-600">خروج</a>
+                                </li>
+                            }
                         </ul>
                     </nav>
                 </div>
@@ -378,18 +388,18 @@
             <!-- contact -->
             <div class="col-xl-4 order-xl-2 d-xl-block d-none">
                 <div class="d-flex justify-content-end align-items-center">
-                    <small class="text-muted font-12">هفت روز هفته، 24 ساعت شبانه‌روز پاسخگوی شما</small>
-                    <div class="d-flex align-items-center ms-2">
-                        <span class="fw-bold bs-text-red-600">12345678</span>
-                        <span class="ms-1">021</span>
-                    </div>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <strong class="text-muted font-12">@User.Identity.Name عزیز، خوش آمدید</strong>
+                    }
                 </div>
             </div>
             <!-- logo -->
             <div class="col-xl-2 order-xl-3 col-4 z-3">
-                <a href="index.html">
+                <a href="/">
                     <div class="top-header-logo">
-                        <img src="~/MainTemplate/assets/image/logo.png" alt="">
+                        <img src="~/MainTemplate/assets/image/logo.png" alt="وبسایت فروشگاهی بوکان آنلاین"
+                             title="وبسایت فروشگاهی بوکان آنلاین">
                     </div>
                 </a>
             </div>

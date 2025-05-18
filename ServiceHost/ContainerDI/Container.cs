@@ -2,11 +2,11 @@
 using System.Text.Unicode;
 using Eshop.Application.Services.Implementations;
 using Eshop.Application.Services.Interfaces;
-using Eshop.Domain.Context;
 using Eshop.Domain.Repository;
+using GoogleReCaptcha.V3;
+using GoogleReCaptcha.V3.Interface;
 using MarketPlace.Application.Services.Implementations;
 using MarketPlace.Application.Services.Interfaces;
-using Microsoft.AspNetCore.Identity;
 
 namespace ServiceHost.ContainerDI
 {
@@ -34,6 +34,7 @@ namespace ServiceHost.ContainerDI
             services.AddSingleton<HtmlEncoder>(
                 HtmlEncoder.Create(allowedRanges: new[] { UnicodeRanges.BasicLatin, UnicodeRanges.Arabic }));
             services.AddTransient<IPasswordHasher, PasswordHasher>();
+            services.AddHttpClient<ICaptchaValidator, GoogleReCaptchaValidator>();
 
             #endregion
         }

@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Eshop.Domain.Dtos.Site;
 
 namespace Eshop.Domain.Dtos.Account.User
 {
-    public class LoginUserDto
+    public class LoginUserDto : CaptchaDto
     {
         [Display(Name = "تلفن همراه")]
         [Required(ErrorMessage = "لطفا {0} را وارد کنید")]

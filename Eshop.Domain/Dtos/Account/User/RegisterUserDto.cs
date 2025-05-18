@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Eshop.Domain.Dtos.Site;
 
 namespace Eshop.Domain.Dtos.Account.User;
 
-public class RegisterUserDto
+public class RegisterUserDto : CaptchaDto
 {
 
     public long RoleId { get; set; }

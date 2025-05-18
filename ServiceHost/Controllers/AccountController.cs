@@ -1,9 +1,11 @@
 ﻿using System.Security.Claims;
 using Eshop.Application.Services.Interfaces;
 using Eshop.Domain.Dtos.Account.User;
+using GoogleReCaptcha.V3.Interface;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
 namespace ServiceHost.Controllers
 {
@@ -15,6 +17,7 @@ namespace ServiceHost.Controllers
 
 
         private readonly IUserService _userService;
+        private readonly ICaptchaValidator _captchaValidator;
 
 
 
@@ -22,9 +25,10 @@ namespace ServiceHost.Controllers
 
         #region Constructor
 
-        public AccountController(IUserService userService)
+        public AccountController(IUserService userService, ICaptchaValidator captchaValidator)
         {
             _userService = userService;
+            _captchaValidator = captchaValidator;
         }
 
         #endregion
@@ -48,6 +52,13 @@ namespace ServiceHost.Controllers
         [HttpPost("register"), ValidateAntiForgeryToken]
         public async Task<IActionResult> RegisterUser(RegisterUserDto register)
         {
+            if (!await _captchaValidator.IsCaptchaPassedAsync(register.Captcha))
+            {
+                TempData[ErrorMessage] = "کد کپچای شما تایید نشد";
+                TempData[InfoMessage] = "لطفا از اتصال اینترنت خود مطمئن شوید";
+                return View(register);
+            }
+
             if (ModelState.IsValid)
             {
                 var result = await _userService.RegisterUser(register);
@@ -89,6 +100,12 @@ namespace ServiceHost.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginUserDto login)
         {
+            if (!await _captchaValidator.IsCaptchaPassedAsync(login.Captcha))
+            {
+                TempData[ErrorMessage] = "کد کپچای شما تایید نشد";
+                TempData[InfoMessage] = "لطفا از اتصال اینترنت خود مطمئن شوید";
+                return View(login);
+            }
             if (ModelState.IsValid)
             {
                 var result = await _userService.LoginUser(login);
@@ -143,6 +160,20 @@ namespace ServiceHost.Controllers
 
         #endregion
 
+        #region Logout
+
+        [HttpGet("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+
+            return Redirect("/");
+        }
+
         #endregion
+
+        #endregion
+
+
     }
 }
