@@ -1,5 +1,8 @@
-﻿using Eshop.Application.Services.Interfaces;
+﻿using System.Security.Claims;
+using Eshop.Application.Services.Interfaces;
 using Eshop.Domain.Dtos.Account.User;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ServiceHost.Controllers
@@ -7,6 +10,9 @@ namespace ServiceHost.Controllers
     public class AccountController : SiteBaseController
     {
         #region Fields
+
+        public static string ReturnUrl { get; set; }
+
 
         private readonly IUserService _userService;
 
@@ -31,6 +37,11 @@ namespace ServiceHost.Controllers
         [HttpGet("register")]
         public async Task<IActionResult> RegisterUser()
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                return Redirect("/");
+            }
             return View();
         }
 
@@ -46,15 +57,15 @@ namespace ServiceHost.Controllers
                     case RegisterUserResult.MobileExists:
                         TempData[WarningMessage] = $"شماره همراه : {register.Mobile} تکراری می باشد.";
                         ModelState.AddModelError("Mobile", "شماره همراه تکراری می باشد.");
-                    break;
-                case RegisterUserResult.Error:
+                        break;
+                    case RegisterUserResult.Error:
                         TempData[ErrorMessage] = "در ثبت اطلاعات خطایی رخ داد. لطفا دوباره تلاش نمایید.";
                         break;
                     case RegisterUserResult.Success:
-                    TempData[SuccessMessage] = "کاربر با موفقیت ثبت گردید.";
-                    TempData[InfoMessage] = $"کد تایید، جهت فعالسازی حساب کاربری به شماره همراه {register.Mobile} ارسال گردید.";
-                    return RedirectToAction("ActivateMobile", "Account");
-            }
+                        TempData[SuccessMessage] = "کاربر با موفقیت ثبت گردید.";
+                        TempData[InfoMessage] = $"کد تایید، جهت فعالسازی حساب کاربری به شماره همراه {register.Mobile} ارسال گردید.";
+                        return RedirectToAction("ActivateMobile", "Account");
+                }
             }
             return View(register);
         }
@@ -64,12 +75,14 @@ namespace ServiceHost.Controllers
         #region Login
 
         [HttpGet("login")]
-        public IActionResult Login()
+        public IActionResult Login(string returnUrl)
         {
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity != null && User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Index", "Home");
             }
+
+            ReturnUrl = returnUrl;
             return View();
         }
 
@@ -95,7 +108,33 @@ namespace ServiceHost.Controllers
                         break;
                     case UserLoginResult.Success:
                         var user = await _userService.GetUserByMobile(login.Mobile);
-                        
+
+                        var claims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.MobilePhone, user.Mobile),
+                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                            new Claim(ClaimTypes.Email, user.Email),
+                            new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName),
+                            new Claim(ClaimTypes.Role, user.RoleId.ToString()),
+                        };
+
+                        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        var principal = new ClaimsPrincipal(identity);
+
+                        var properties = new AuthenticationProperties
+                        {
+                            IsPersistent = login.RememberMe,
+                            RedirectUri = HttpContext.Request.Query["RedirectUri"]
+                        };
+
+                        await HttpContext.SignInAsync(principal, properties);
+
+                        TempData[SuccessMessage] = "شما با موفقیت وارد سایت شدید";
+
+                        if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                            return Redirect(ReturnUrl);
+                        else
+                            return Redirect("/");
                 }
             }
 

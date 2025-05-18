@@ -342,9 +342,16 @@
             <div class="col-xl-6 order-xl-1 d-xl-block d-none">
                 <div class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
-                        <a class="btn btn-info" asp-controller="Account" asp-action="RegisterUser">
+                        <a class="btn btn-info" asp-controller="Account" asp-action="Login">
                             <i class="bi bi-person"></i>
-                            <span class="fw-bold ms-1">وارد شوید</span>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <span class="fw-bold ms-1">خوش آمدید</span>
+                            }
+                            else
+                            {
+                                <span class="fw-bold ms-1">وارد شوید</span>
+                            }
                         </a>
                     </div>
                     <div class="pip mx-2"></div>

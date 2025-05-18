@@ -16,6 +16,8 @@ namespace Eshop.Domain.Dtos.Account.User
         [DataType(DataType.Password)]
         [MaxLength(250, ErrorMessage = "{0} نمی تواند بیشتر از {1} کاراکتر باشد")]
         public string Password { get; set; }
+
+        public bool RememberMe { get; set; }
     }
 
     public enum UserLoginResult
