@@ -1,4 +1,6 @@
-﻿@model Eshop.Domain.Dtos.Account.User.RegisterUserDto
+﻿@using Eshop.Domain.Dtos.Site
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Eshop.Domain.Dtos.Account.User.RegisterUserDto
 
 @{
     ViewData["Title"] = "ثبت نام کاربر";
@@ -6,6 +8,7 @@
 
 @section script {
     <partial name="_JqueryValidators" />
+    <partial name="_CaptchaScripts"/>
 }
 
 <section class="content vh-100">
@@ -23,6 +26,7 @@
                                     </a>
                                 </div>
                                 <form class="py-3" asp-area="" asp-controller="Account" asp-action="RegisterUser" method="post">
+                                    <partial name="_CaptchaInput" model="@(new CaptchaDto())" />
                                     <div class="comment-item mb-4">
                                         <input type="text" asp-for="FirstName" class="form-control">
                                         <label class="form-label label-float">

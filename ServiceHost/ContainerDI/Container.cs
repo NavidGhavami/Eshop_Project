@@ -23,6 +23,7 @@ namespace ServiceHost.ContainerDI
 
             #region General Services
 
+            services.AddTransient<ISiteSettingService, SiteSettingService>();
             services.AddTransient<IUserService, UserService>();
 
 

@@ -1,5 +1,6 @@
 ﻿using Eshop.Domain.Entites.Account.Role;
 using Eshop.Domain.Entites.Account.User;
+using Eshop.Domain.Entites.Site;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eshop.Domain.Context;
@@ -13,6 +14,12 @@ public class DatabaseContext : DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }
+
+    #endregion
+
+    #region Site Setting
+
+    public DbSet<SiteSetting> SiteSettings { get; set; }
 
     #endregion
 
