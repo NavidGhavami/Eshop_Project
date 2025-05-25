@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="KavenegarDotNetCore" Version="1.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Eshop.Domain\Eshop.Domain.csproj" />
   </ItemGroup>
 

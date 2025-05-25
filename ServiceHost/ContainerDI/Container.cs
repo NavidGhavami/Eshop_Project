@@ -25,6 +25,7 @@ namespace ServiceHost.ContainerDI
 
             services.AddTransient<ISiteSettingService, SiteSettingService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ISmsService, SmsService>();
 
 
             #endregion

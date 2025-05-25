@@ -9,4 +9,6 @@ public interface IUserService : IAsyncDisposable
     Task<bool> IsUserExistByMobileNumber(string mobile);
     Task<UserLoginResult> LoginUser(LoginUserDto login);
     Task<User> GetUserByMobile(string mobile);
+    Task<User> GetUserById(long userId);
+    Task<bool> ActivateMobile(ActiveMobileDto activate);
 }

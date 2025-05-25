@@ -75,7 +75,7 @@ namespace ServiceHost.Controllers
                     case RegisterUserResult.Success:
                         TempData[SuccessMessage] = "کاربر با موفقیت ثبت گردید.";
                         TempData[InfoMessage] = $"کد تایید، جهت فعالسازی حساب کاربری به شماره همراه {register.Mobile} ارسال گردید.";
-                        return RedirectToAction("ActivateMobile", "Account");
+                        return RedirectToAction("ActivateMobile", "Account", new { mobile = register.Mobile });
                 }
             }
             return View(register);
@@ -166,8 +166,49 @@ namespace ServiceHost.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync();
-
+            TempData[WarningMessage] = "شما از حساب کاربری خارج شدید";
             return Redirect("/");
+        }
+
+        #endregion
+
+        #region Activate Mobile
+
+        [HttpGet("activate-mobile/{mobile}")]
+        public async Task<IActionResult> ActivateMobile(string mobile)
+        {
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                return Redirect("/");
+            }
+
+            var activateMobile = new ActiveMobileDto { Mobile = mobile };
+            return View(activateMobile);
+        }
+
+        [HttpPost("activate-mobile/{mobile}"), ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActivateMobile(ActiveMobileDto activate)
+        {
+            if (!await _captchaValidator.IsCaptchaPassedAsync(activate.Captcha))
+            {
+                TempData[ErrorMessage] = "کد کپچای شما تایید نشد";
+                return View(activate);
+            }
+            if (ModelState.IsValid)
+            {
+                var result = await _userService.ActivateMobile(activate);
+
+                if (result)
+                {
+                    TempData[SuccessMessage] = "حساب کاربری شما با موفقیت فعال شد";
+                    TempData[InfoMessage] = "جهت ورود به حساب خود شماره موبایل و رمز عبور خود را وارد نمایید";
+                    return RedirectToAction("Login");
+                }
+
+                TempData[ErrorMessage] = "کاربری با مشخصات وارد شده یافت نشد";
+
+            }
+            return View(activate);
         }
 
         #endregion
