@@ -5,11 +5,42 @@
 @{
     ViewData["Title"] = "فعالسازی حساب کاربری";
 
-
     @section script
     {
         <partial name="_JqueryValidators" />
         <partial name="_CaptchaScripts" />
+        <script>
+            $(document).ready(function() {
+                // Countdown timer functionality
+                let timeLeft = 30;
+                const countdownElement = document.getElementById('countdownTimer');
+                const progressBar = document.querySelector('.countdown-bar > div:first-child');
+                const resendLink = document.getElementById('resendLink');
+                const totalWidth = 250;
+                
+                // Update the countdown every second
+                const countdownInterval = setInterval(function() {
+                    timeLeft--;
+                    
+                    // Update timer display
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    countdownElement.textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    
+                    // Update progress bar
+                    const progressWidth = (timeLeft / 30) * totalWidth;
+                    progressBar.style.width = `${progressWidth}px`;
+                    
+                    // When timer reaches 0
+                    if (timeLeft <= 0) {
+                        clearInterval(countdownInterval);
+                        countdownElement.style.display = 'none';
+                        resendLink.style.display = 'inline';
+                    }
+                }, 1000);
+            });
+        </script>
     }
 }
 
@@ -44,18 +75,24 @@
                                     </div>
                                 </form>
                                 <!-- Countdown timer html -->
-                                <div class="countDownContainer">
-                                    <div class="countdown-bar" id="countdownB" style="width: 250px; height: 2px; background-color: rgb(244, 244, 244); border-color: rgb(58, 59, 156);">
-                                        <div style="width: 124.687px; background-color: rgb(58, 59, 156); overflow: hidden;"></div>
-                                        <div style="width: 250px; height: 2px;"><span style="color: #3a3b9c; font-weight: 700; font-family: yekan-bakh; font-size: 14px;">00:00:30</span></div>
+                                <div class="countDownContainer text-center mt-3">
+                                    <div class="countdown-bar mx-auto" style="width: 250px; height: 2px; background-color: rgb(244, 244, 244); position: relative;">
+                                        <div style="width: 250px; height: 2px; background-color: rgb(58, 59, 156); position: absolute; top: 0; left: 0; transition: width 1s linear;"></div>
                                     </div>
+                                    <div class="mt-2">
+                                        <span id="countdownTimer" style="color: #3a3b9c; font-weight: 700; font-family: yekan-bakh; font-size: 14px;">00:30</span>
+                                        <a asp-controller="Account" asp-action="ActivateMobile" id="resendLink" style="display: none; color: #3a3b9c; font-weight: 700; font-family: yekan-bakh; font-size: 14px; text-decoration: none;">
+                                            ارسال مجدد کد فعالسازی
+                                        </a>
+                                    </div>
+
                                 </div>
                             </div>
                             <p class="loginTermsDesc lh-lg mt-3">
-                                با ورود و یا ثبت نام در آبتین شما <a class="underlined fw-bold" href="/rules/">
+                                با ورود و یا ثبت نام در آبتین شما <a class="underlined fw-bold" href="#">
                                     شرایط و
                                     قوانین
-                                </a> استفاده از سرویس‌های سایت آبتین و <a class="underlined fw-bold" href="/privacy-polices/">
+                                </a> استفاده از سرویس‌های سایت آبتین و <a class="underlined fw-bold" href="#">
                                     قوانین حریم
                                     خصوصی
                                 </a> آن را می‌پذیرید.

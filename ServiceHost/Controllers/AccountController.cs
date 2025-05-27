@@ -63,6 +63,14 @@ namespace ServiceHost.Controllers
             {
                 var result = await _userService.RegisterUser(register);
 
+                var user = await _userService.GetUserByMobile(register.Mobile);
+
+                if (user.IsMobileActive)
+                {
+                    TempData[InfoMessage] = "حساب کاربری شما قبلا فعال شده است";
+                    return RedirectToAction("Login", "Account");
+                }
+
                 switch (result)
                 {
                     case RegisterUserResult.MobileExists:
@@ -194,19 +202,32 @@ namespace ServiceHost.Controllers
                 TempData[ErrorMessage] = "کد کپچای شما تایید نشد";
                 return View(activate);
             }
+
             if (ModelState.IsValid)
             {
-                var result = await _userService.ActivateMobile(activate);
+                var user = await _userService.GetUserByMobile(activate.Mobile);
 
-                if (result)
+                if (!user.IsMobileActive)
                 {
-                    TempData[SuccessMessage] = "حساب کاربری شما با موفقیت فعال شد";
-                    TempData[InfoMessage] = "جهت ورود به حساب خود شماره موبایل و رمز عبور خود را وارد نمایید";
-                    return RedirectToAction("Login");
+                    var result = await _userService.ActivateMobile(activate);
+
+                    if (result)
+                    {
+                        TempData[SuccessMessage] = "حساب کاربری شما با موفقیت فعال شد";
+                        TempData[InfoMessage] = "جهت ورود به حساب خود شماره موبایل و رمز عبور خود را وارد نمایید";
+                        return RedirectToAction("Login", "Account");
+                    }
+                }else if (user.IsMobileActive)
+                {
+                    TempData[InfoMessage] = "حساب کاربری شما قبلا فعال شده است";
+                    return RedirectToAction("Login", "Account");
+                }
+                else
+                {
+                    TempData[ErrorMessage] = "کد فعالسازی اشتباه است";
                 }
 
                 TempData[ErrorMessage] = "کاربری با مشخصات وارد شده یافت نشد";
-
             }
             return View(activate);
         }
