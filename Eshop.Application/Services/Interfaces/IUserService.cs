@@ -1,5 +1,5 @@
 ﻿using Eshop.Domain.Dtos.Account.User;
-using Eshop.Domain.Entites.Account.User;
+using Eshop.Domain.Entities.Account.User;
 
 namespace Eshop.Application.Services.Interfaces;
 
@@ -11,4 +11,5 @@ public interface IUserService : IAsyncDisposable
     Task<User> GetUserByMobile(string mobile);
     Task<User> GetUserById(long userId);
     Task<bool> ActivateMobile(ActiveMobileDto activate);
+    Task<ForgotPasswordResult> RecoverUserPassword(ForgotPasswordDto forgot);
 }

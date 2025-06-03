@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Eshop.Application.Services.Interfaces;
 using Eshop.Domain.Dtos.Site;
-using Eshop.Domain.Entites.Site;
+using Eshop.Domain.Entities.Site;
 using Eshop.Domain.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +16,7 @@ namespace Eshop.Application.Services.Implementations
         #region Fields
 
         private readonly IGenericRepository<SiteSetting> _siteSettingRepository;
+        private readonly IGenericRepository<AboutUs> _aboutUsRepository;
 
 
 
@@ -24,9 +25,10 @@ namespace Eshop.Application.Services.Implementations
 
         #region Constructor
 
-        public SiteSettingService(IGenericRepository<SiteSetting> siteSettingRepository)
+        public SiteSettingService(IGenericRepository<SiteSetting> siteSettingRepository, IGenericRepository<AboutUs> aboutUsRepository)
         {
             _siteSettingRepository = siteSettingRepository;
+            _aboutUsRepository = aboutUsRepository;
         }
 
 
@@ -55,6 +57,17 @@ namespace Eshop.Application.Services.Implementations
                 .FirstOrDefaultAsync(x => x.IsDefault);
 
            return siteSetting ?? new SiteSettingDto();
+        }
+
+        public async Task<List<AboutUsDto>> GetAboutUs()
+        {
+            return await _aboutUsRepository.GetQuery().AsQueryable()
+                .Select(x => new AboutUsDto
+                {
+                    HeaderTitle = x.HeaderTitle,
+                    Description = x.Description
+
+                }).ToListAsync();
         }
 
         #endregion

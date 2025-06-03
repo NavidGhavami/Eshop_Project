@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Eshop.Domain.Entites.Common;
+using Eshop.Domain.Entities.Common;
 
-namespace Eshop.Domain.Entites.Site
+namespace Eshop.Domain.Entities.Site
 {
     public class SiteSetting : BaseEntity
     {

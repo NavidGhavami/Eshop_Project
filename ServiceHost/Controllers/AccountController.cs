@@ -73,6 +73,12 @@ namespace ServiceHost.Controllers
 
                 switch (result)
                 {
+                    case RegisterUserResult.MobileNotActive:
+                        TempData[WarningMessage] = "شماره همراه شما فعال نشده است. لطفا ابتدا شماره همراه خود را فعال نمایید.";
+                        TempData[InfoMessage] = "کد شش رقمی به شماره همراه شما ارسال گردید.";
+                        ModelState.AddModelError("Mobile", "شماره همراه شما فعال نشده است.");
+                        return RedirectToAction("ActivateMobile", "Account", new {mobile = register.Mobile});
+
                     case RegisterUserResult.MobileExists:
                         TempData[WarningMessage] = $"شماره همراه : {register.Mobile} تکراری می باشد.";
                         ModelState.AddModelError("Mobile", "شماره همراه تکراری می باشد.");
@@ -230,6 +236,53 @@ namespace ServiceHost.Controllers
                 TempData[ErrorMessage] = "کاربری با مشخصات وارد شده یافت نشد";
             }
             return View(activate);
+        }
+
+        #endregion
+
+        #region Recover User Password
+
+        [HttpGet("recover-password")]
+        public async Task<IActionResult> RecoverUserPassword()
+        {
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                return Redirect("/");
+            }
+
+            //var forgetPassword = new ForgotPasswordDto { Mobile = mobile };
+            return View();
+        }
+
+        [HttpPost("recover-password"), ValidateAntiForgeryToken]
+        public async Task<IActionResult> RecoverUserPassword(ForgotPasswordDto forgot)
+        {
+            if (!await _captchaValidator.IsCaptchaPassedAsync(forgot.Captcha))
+            {
+                TempData[ErrorMessage] = "کد کپچای شما تایید نشد";
+                return View(forgot);
+            }
+
+            if (ModelState.IsValid)
+            {
+                var result = await _userService.RecoverUserPassword(forgot);
+                switch (result)
+                {
+                    case ForgotPasswordResult.UserNotFound:
+                        TempData[WarningMessage] = "کاربری با این مشخصات یافت نشد.";
+                        ModelState.AddModelError("Mobile", "کاربری با این مشخصات یافت نشد.");
+                        break;
+                    case ForgotPasswordResult.Error:
+                        TempData[ErrorMessage] = "در بازیابی رمز عبور خطایی رخ داد. لطفا دوباره تلاش نمایید.";
+                        break;
+                    case ForgotPasswordResult.Success:
+                        TempData[SuccessMessage] = "رمز عبور جدید به شماره همراه شما ارسال شد.";
+                        TempData[InfoMessage] = "لطفا پس از ورود به حساب کاربری، رمز عبور خود را تغییر دهید";
+                        return RedirectToAction("Login", "Account");
+                }
+            }
+
+            return View(forgot);
         }
 
         #endregion

@@ -20,5 +20,15 @@ namespace Eshop.Application.Services.Implementations
 
             await api.VerifyLookup(mobile, activationCode, "VerifyWebsiteAccount");
         }
+
+        public async Task SendRecoverPasswordSms(string mobile, string newPassword)
+        {
+
+            var apiKey = _configuration.GetSection("KavenegarSmsApiKey")["apiKey"];
+
+            var api = new Kavenegar.KavenegarApi(apiKey);
+
+            await api.VerifyLookup(mobile, newPassword, "VerifyRecoverPassword");
+        }
     }
 }

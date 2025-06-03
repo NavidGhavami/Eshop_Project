@@ -1,5 +1,5 @@
 ﻿using Eshop.Domain.Context;
-using Eshop.Domain.Entites.Common;
+using Eshop.Domain.Entities.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eshop.Domain.Repository;

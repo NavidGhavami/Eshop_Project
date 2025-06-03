@@ -1,4 +1,4 @@
-﻿using Eshop.Domain.Entites.Common;
+﻿using Eshop.Domain.Entities.Common;
 
 namespace Eshop.Domain.Repository;
 

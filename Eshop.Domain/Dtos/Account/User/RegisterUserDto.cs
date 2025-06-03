@@ -52,5 +52,6 @@ public enum RegisterUserResult
 {
     Success,
     MobileExists,
-    Error
+    Error,
+    MobileNotActive
 }

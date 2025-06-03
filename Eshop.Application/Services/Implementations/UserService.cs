@@ -1,11 +1,12 @@
 ﻿using Eshop.Application.Services.Interfaces;
 using Eshop.Domain.Dtos.Account.User;
-using Eshop.Domain.Entites.Account.Role;
-using Eshop.Domain.Entites.Account.User;
 using Eshop.Domain.Repository;
 using MarketPlace.Application.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using Eshop.Domain.Entities.Account.Role;
+using Eshop.Domain.Entities.Account.User;
+using MarketPlace.Application.Utilities;
 
 namespace Eshop.Application.Services.Implementations
 {
@@ -60,6 +61,24 @@ namespace Eshop.Application.Services.Implementations
                     await _smsService.SendVerificationSms(register.Mobile, user.MobileActiveCode);
 
                     return RegisterUserResult.Success;
+                }
+                
+                var userNotActive = await _userRepository.GetQuery()
+                    .AsQueryable()
+                    .SingleOrDefaultAsync(x => x.Mobile == register.Mobile);
+
+                var newActiveCode = new Random().Next(100000, 999999).ToString();
+
+                if (!userNotActive.IsMobileActive && userNotActive.MobileActiveCode != null)
+                {
+                    await _smsService.SendVerificationSms(userNotActive.Mobile, newActiveCode);
+
+                     userNotActive.MobileActiveCode = newActiveCode;
+                    _userRepository.EditEntity(userNotActive);
+
+                     await _userRepository.SaveChanges();
+
+                     return RegisterUserResult.MobileNotActive;
                 }
                 else
                 {
@@ -124,6 +143,27 @@ namespace Eshop.Application.Services.Implementations
             }
 
             return false;
+        }
+        public async Task<ForgotPasswordResult> RecoverUserPassword(ForgotPasswordDto forgot)
+        {
+            var user = await _userRepository.GetQuery()
+                .AsQueryable()
+                .SingleOrDefaultAsync(x => x.Mobile == forgot.Mobile);
+
+            if (user == null)
+            {
+                return ForgotPasswordResult.UserNotFound;
+            }
+
+            var newPassword = PasswordGenerator.CreateRandomPassword();
+            user.Password = _passwordHasher.EncodePasswordMd5(newPassword);
+            _userRepository.EditEntity(user);
+
+            await _smsService.SendRecoverPasswordSms(forgot.Mobile, newPassword);
+
+            await _userRepository.SaveChanges();
+
+            return ForgotPasswordResult.Success;
         }
 
         #endregion

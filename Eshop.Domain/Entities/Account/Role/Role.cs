@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Eshop.Domain.Entites.Common;
+using Eshop.Domain.Entities.Common;
 
-namespace Eshop.Domain.Entites.Account.Role;
+namespace Eshop.Domain.Entities.Account.Role;
 
 public class Role : BaseEntity
 {

@@ -363,21 +363,17 @@
                             <li class="nav-item"><a asp-controller="Home" asp-action="Index" class="nav-link font-12 bs-text-gray-600">صفحه اصلی</a></li>
                             <li class="nav-item"><a href="" class="nav-link font-12 bs-text-gray-600">فروشگاه</a></li>
                             <li class="nav-item">
-                                <a href="" class="nav-link font-12 bs-text-gray-600">شگفت انگیز شو</a>
-                            </li>
-                            <li class="nav-item"><a href="" class="nav-link font-12 bs-text-gray-600">گزارش</a></li>
-                            <li class="nav-item">
                                 <a href="" class="nav-link font-12 bs-text-gray-600">سوالات متداول</a>
                             </li>
                             <li class="nav-item"><a href="" class="nav-link font-12 bs-text-gray-600">وبلاگ</a></li>
-                            <li class="nav-item"><a href="" class="nav-link font-12 bs-text-gray-600">درباره ما</a></li>
+                            <li class="nav-item"><a asp-controller="Home" asp-action="AboutUs" class="nav-link font-12 bs-text-gray-600">درباره ما</a></li>
                             <li class="nav-item">
-                                <a href="" class="nav-link font-12 bs-text-gray-600">تماس با ما</a>
+                                <a asp-controller="Home" asp-action="AboutUs" class="nav-link font-12 bs-text-gray-600">تماس با ما</a>
                             </li>
                             @if (User.Identity.IsAuthenticated)
                             {
                                 <li class="nav-item">
-                                    <a asp-controller="Account" asp-action="Logout" 
+                                    <a asp-controller="Account" asp-action="Logout"
                                        class="nav-link font-12 bs-text-gray-600">خروج</a>
                                 </li>
                             }

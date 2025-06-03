@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Eshop.Domain.Entites.Common;
+namespace Eshop.Domain.Entities.Common;
 
 public class BaseEntity
 {
