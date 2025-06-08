@@ -1,4 +1,5 @@
-﻿using System.Text.Encodings.Web;
+﻿using System.Drawing.Text;
+using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Eshop.Application.Services.Implementations;
 using Eshop.Application.Services.Interfaces;
@@ -26,6 +27,8 @@ namespace ServiceHost.ContainerDI
             services.AddTransient<ISiteSettingService, SiteSettingService>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ISmsService, SmsService>();
+            services.AddTransient<IContactService, ContactService>();
+
 
 
             #endregion

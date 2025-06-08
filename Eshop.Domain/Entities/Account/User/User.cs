@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Eshop.Domain.Entities.Common;
+using Eshop.Domain.Entities.Contact;
 
 namespace Eshop.Domain.Entities.Account.User;
 
@@ -64,8 +65,9 @@ public class User : BaseEntity
 
 
 
-    #region MyRegion
+    #region Relations
 
+    public ICollection<ContactUs> ContactUs { get; set; }
     public Role.Role Role { get; set; }
 
     #endregion
