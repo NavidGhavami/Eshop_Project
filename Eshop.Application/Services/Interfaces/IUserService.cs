@@ -12,4 +12,5 @@ public interface IUserService : IAsyncDisposable
     Task<User> GetUserById(long userId);
     Task<bool> ActivateMobile(ActiveMobileDto activate);
     Task<ForgotPasswordResult> RecoverUserPassword(ForgotPasswordDto forgot);
+    Task<string?> GetUserImage(long userId);
 }

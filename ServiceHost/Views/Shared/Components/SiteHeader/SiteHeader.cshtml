@@ -344,7 +344,7 @@
                     <div class="d-flex align-items-center">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <a class="btn btn-info" asp-controller="Account" asp-action="Logout">
+                            <a class="btn btn-info" asp-area="User" asp-controller="Home" asp-action="Dashboard">
                                 <i class="bi bi-person"></i>
                                 <span class="fw-bold ms-1">پنل کاربری</span>
                             </a>

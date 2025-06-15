@@ -42,10 +42,10 @@ namespace ServiceHost.Controllers
         public async Task<IActionResult> ContactUs()
         {
             var setting = await _siteSettingService.GetDefaultSiteSetting();
-
             if (setting == null)
             {
-                return Content("SiteSetting is null");
+                TempData[ErrorMessage] = "تنظیمات سایت یافت نشد";
+                return RedirectToAction("Index", "Home");
             }
 
             ViewBag.SiteSetting = setting;

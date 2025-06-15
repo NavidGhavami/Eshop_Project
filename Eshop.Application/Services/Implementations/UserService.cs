@@ -165,6 +165,13 @@ namespace Eshop.Application.Services.Implementations
 
             return ForgotPasswordResult.Success;
         }
+        public async Task<string?> GetUserImage(long userId)
+        {
+            var user = await _userRepository.GetQuery().AsQueryable()
+                .FirstOrDefaultAsync(x => x.Id == userId);
+
+            return user?.Avatar;
+        }
 
         #endregion
 
