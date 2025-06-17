@@ -1,5 +1,6 @@
 ﻿using Eshop.Domain.Dtos.Account.User;
 using Eshop.Domain.Entities.Account.User;
+using Microsoft.AspNetCore.Http;
 
 namespace Eshop.Application.Services.Interfaces;
 
@@ -13,4 +14,6 @@ public interface IUserService : IAsyncDisposable
     Task<bool> ActivateMobile(ActiveMobileDto activate);
     Task<ForgotPasswordResult> RecoverUserPassword(ForgotPasswordDto forgot);
     Task<string?> GetUserImage(long userId);
+    Task<EditUserProfileDto> GetProfileForEdit(long userId);
+    Task<EditUserProfileResult> EditUserProfile(EditUserProfileDto profile, long userId, IFormFile avatarImage);
 }

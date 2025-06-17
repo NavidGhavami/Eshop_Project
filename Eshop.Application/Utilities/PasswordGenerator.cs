@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace MarketPlace.Application.Utilities
+namespace Eshop.Application.Utilities
 {
     public static class PasswordGenerator
     {

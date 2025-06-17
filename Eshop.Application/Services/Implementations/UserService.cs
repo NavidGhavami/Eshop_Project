@@ -4,9 +4,11 @@ using Eshop.Domain.Repository;
 using MarketPlace.Application.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using Eshop.Application.Extensions;
+using Eshop.Application.Utilities;
 using Eshop.Domain.Entities.Account.Role;
 using Eshop.Domain.Entities.Account.User;
-using MarketPlace.Application.Utilities;
+using Microsoft.AspNetCore.Http;
 
 namespace Eshop.Application.Services.Implementations
 {
@@ -171,6 +173,60 @@ namespace Eshop.Application.Services.Implementations
                 .FirstOrDefaultAsync(x => x.Id == userId);
 
             return user?.Avatar;
+        }
+        public async Task<EditUserProfileDto> GetProfileForEdit(long userId)
+        {
+            var user = await _userRepository.GetEntityById(userId);
+
+            if (user == null)
+            {
+                return new EditUserProfileDto();
+            }
+
+            return new EditUserProfileDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Avatar = user.Avatar
+            };
+        }
+        public async Task<EditUserProfileResult> EditUserProfile(EditUserProfileDto profile, long userId, IFormFile avatarImage)
+        {
+            var user = await _userRepository.GetEntityById(userId);
+
+            if (user == null)
+            {
+                return EditUserProfileResult.NotFound;
+            }
+
+            if (user.IsBlocked)
+            {
+                return EditUserProfileResult.IsBlocked;
+            }
+
+            if (!user.IsMobileActive)
+            {
+                return EditUserProfileResult.IsNotActive;
+            }
+
+            user.Edit(profile.FirstName, profile.LastName, profile.Email);
+
+            if (avatarImage != null && avatarImage.IsImage())
+            {
+                var imageName = Guid.NewGuid().ToString("N") + Path.GetExtension(avatarImage.FileName);
+
+                avatarImage.AddImageToServer(imageName, PathExtension.UserAvatarOriginServer,
+                    100, 100, PathExtension.UserAvatarThumbServer, user.Avatar);
+
+                user.Avatar = imageName;
+            }
+
+            _userRepository.EditEntity(user);
+            await _userRepository.SaveChanges();
+
+            return EditUserProfileResult.Success;
         }
 
         #endregion

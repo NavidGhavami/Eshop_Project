@@ -1,4 +1,4 @@
-﻿@using MarketPlace.Application.Utilities
+﻿@using Eshop.Application.Utilities
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 
 
@@ -16,8 +16,8 @@
             <h6 class="mt-2">@User.Identity.Name</h6>
             <div class="d-flex align-items-center justify-content-between">
                 <p class="text-muted small mt-1">عزیز، خوش آمدید</p>
-                <a href="" class="ms-2"><i class="text-warning bi bi-pencil-square"></i></a>
-                <a href="" class="ms-2"><i class="text-danger bi bi-lock-fill"></i></a>
+                <a asp-area="User" asp-controller="Account" asp-action="EditProfile" class="ms-2"><i class="text-warning bi bi-pencil-square"></i></a>
+                <a asp-area="User" asp-controller="Account" asp-action="ChangePassword" class="ms-2"><i class="text-danger bi bi-lock-fill"></i></a>
             </div>
         </div>
     </div>

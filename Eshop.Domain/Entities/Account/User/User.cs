@@ -60,9 +60,15 @@ public class User : BaseEntity
     [Display(Name = "بلاک شده / نشده")]
     public bool IsBlocked { get; set; }
 
+    public void Edit(string firstname, string lastname, string email)
+    {
+        this.FirstName = firstname;
+        this.LastName = lastname;
+        this.Email = email;
+    }
+
 
     #endregion
-
 
 
     #region Relations
