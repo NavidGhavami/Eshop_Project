@@ -1,5 +1,7 @@
 ﻿using Eshop.Application.Services.Interfaces;
 using Eshop.Domain.Dtos.Account.User;
+using MarketPlace.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using ServiceHost.PresentationExtensions;
 
@@ -8,10 +10,12 @@ namespace ServiceHost.Areas.User.Controllers
     public class AccountController : UserBaseController
     {
         private readonly IUserService _userService;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public AccountController(IUserService userService)
+        public AccountController(IUserService userService, IPasswordHasher passwordHasher)
         {
             _userService = userService;
+            _passwordHasher = passwordHasher;
         }
 
 
@@ -56,6 +60,54 @@ namespace ServiceHost.Areas.User.Controllers
             }
 
             return View(editProfile);
+        }
+
+        #endregion
+
+        #region Change User Password
+
+        [HttpGet("change-password")]
+        public async Task<IActionResult> ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost("change-password"), ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto passwordDto)
+        {
+
+            if (ModelState.IsValid)
+            {
+                var user = await _userService.GetUserById(User.GetUserId());
+                var currentPassword = _passwordHasher.EncodePasswordMd5(passwordDto.CurrentPassword);
+
+                if (currentPassword == user.Password)
+                {
+                    var res = await _userService.ChangeUserPassword(passwordDto, User.GetUserId());
+                    if (res)
+                    {
+                        TempData[SuccessMessage] = "رمز عبور شما تغییر یافت";
+                        TempData[InfoMessage] = "لطفا جهت تکمیل فرایند تغییر رمز عبور ، مجددا وارد سایت شوید";
+                        await HttpContext.SignOutAsync();
+                        return RedirectToAction("Login", "Account", new { area = "" });
+                    }
+                    else
+                    {
+                        TempData[ErrorMessage] = "لطفا از کلمه ی عبور جدیدی استفاده کنید";
+                    }
+                }
+                else
+                {
+                    TempData[ErrorMessage] = "رمز عبور فعلی شما اشتباه می باشد";
+                }
+
+
+
+            }
+
+            TempData[WarningMessage] = "در ثبت اطلاعات خطایی رخ داد !";
+            TempData[InfoMessage] = "لطفا مجددا تلاش فرمایید";
+            return View(passwordDto);
         }
 
         #endregion

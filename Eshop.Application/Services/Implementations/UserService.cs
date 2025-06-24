@@ -228,7 +228,26 @@ namespace Eshop.Application.Services.Implementations
 
             return EditUserProfileResult.Success;
         }
+        public async Task<bool> ChangeUserPassword(ChangePasswordDto changePassword, long currentUserId)
+        {
+            var user = await _userRepository.GetEntityById(currentUserId);
 
+            if (user != null)
+            {
+                var newPassword = _passwordHasher.EncodePasswordMd5(changePassword.NewPassword);
+
+                if (newPassword != user.Password)
+                {
+                    user.Password = newPassword;
+                    _userRepository.EditEntity(user);
+
+                    await _userRepository.SaveChanges();
+                    return true;
+                }
+            }
+            return false;
+
+        }
         #endregion
 
 
