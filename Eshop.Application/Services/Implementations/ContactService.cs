@@ -57,20 +57,7 @@ namespace Eshop.Application.Services.Implementations
 
         public async Task<List<FilterTicketDto>> TicketList()
         {
-            return await _ticketRepository
-                .GetQuery()
-                .AsQueryable()
-                .Select(x => new FilterTicketDto
-                {
-                    Id = x.Id,
-                    Title = x.Title,
-                    TicketPriority = x.TicketPriority,
-                    TicketSection = x.TicketSection,
-                    TicketState = x.TicketState,
-                    CreateDate = x.CreateDate.ToShortDateString()
-                    
-
-                }).ToListAsync();
+            
         }
 
         #endregion
