@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Eshop.Application.Services.Interfaces;
 using Eshop.Domain.Dtos.Contact;
 using Eshop.Domain.Dtos.Contact.Ticket;
+using Eshop.Domain.Dtos.Paging;
 using Eshop.Domain.Entities.Contact;
 using Eshop.Domain.Entities.Contact.Ticket;
 using Eshop.Domain.Repository;
@@ -55,15 +56,90 @@ namespace Eshop.Application.Services.Implementations
             await _contactUsRepository.SaveChanges();
         }
 
-        public async Task<List<FilterTicketDto>> TicketList()
-        {
-            
-        }
-
         #endregion
 
         #region Ticket
+        public async Task<FilterTicketDto> TicketList(FilterTicketDto filter)
+        {
+            var query = _ticketRepository
+                .GetQuery()
+                .Include(x => x.Owner)
+                .AsQueryable();
 
+            #region State
+
+            switch (filter.TicketState)
+            {
+                case TicketState.All:
+                    query = query.Where(x => !x.IsDelete);
+                    break;
+                case TicketState.UnderProgress:
+                    query = query.Where(x => x.TicketState == TicketState.UnderProgress && !x.IsDelete);
+                    break;
+                case TicketState.Answered:
+                    query = query.Where(x => x.TicketState == TicketState.Answered && !x.IsDelete);
+                    break;
+                case TicketState.Closed:
+                    query = query.Where(x => x.TicketState == TicketState.Closed && !x.IsDelete);
+                    break;
+            }
+
+            switch (filter.OrderBy)
+            {
+                case FilterTicketOrder.CreateDateAscending:
+                    query = query.OrderBy(x => x.CreateDate);
+                    break;
+                case FilterTicketOrder.CreateDateDescending:
+                    query = query.OrderByDescending(x => x.CreateDate);
+                    break;
+            }
+
+            #endregion
+
+            #region Filter
+
+            if (filter.TicketSection != null)
+            {
+                query = query.Where(x => x.TicketSection == filter.TicketSection.Value);
+            }
+
+            if (filter.TicketPriority != null)
+            {
+                query = query.Where(x => x.TicketPriority == filter.TicketPriority.Value);
+            }
+
+            if (filter.TicketState != null)
+            {
+                query = query.Where(x => x.TicketState == filter.TicketState.Value);
+            }
+
+            if (filter.UserId != null && filter.UserId != 0)
+            {
+                query = query.Where(x => x.OwnerId == filter.UserId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(filter.Title))
+            {
+                query = query.Where(x => EF.Functions.Like(x.Title, $"%{filter.Title}%"));
+            }
+
+            #endregion
+
+            #region Paging
+
+            var ticketCount = await query.CountAsync();
+
+            var pager = Pager.Build(filter.PageId, ticketCount, filter.TakeEntity,
+                filter.HowManyShowPageAfterAndBefore);
+
+            var allEntities = await query.Paging(pager).ToListAsync();
+
+            #endregion
+
+            return filter.SetPaging(pager).SetTickets(allEntities);
+
+
+        }
         public async Task<AddTicketResult> AddUserTicket(AddTicketDto ticket, long userId)
         {
             if (string.IsNullOrWhiteSpace(ticket.Text))

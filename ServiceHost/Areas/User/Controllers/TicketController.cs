@@ -27,45 +27,48 @@ namespace ServiceHost.Areas.User.Controllers
         #region Actions
 
         [HttpGet("user-tickets")]
-        public async Task<IActionResult> TicketList()
+        public async Task<IActionResult> TicketList(FilterTicketDto filter)
         {
-            var tickets = await _contactService.TicketList();
-            return View(tickets);
+            filter.UserId = User.GetUserId();
+            filter.OrderBy = FilterTicketOrder.CreateDateDescending;
+
+            var result = await _contactService.TicketList(filter);
+            return View(result);
         }
 
-        //#region Add Ticket
+        #region Add Ticket
 
-        //[HttpGet("add-ticket")]
-        //public async Task<IActionResult> AddTicket()
-        //{
-        //    return View();
-        //}
+        [HttpGet("add-ticket")]
+        public async Task<IActionResult> AddTicket()
+        {
+            return View();
+        }
 
-        //[HttpPost("add-ticket"), ValidateAntiForgeryToken]
-        //public async Task<IActionResult> AddTicket(AddTicketDto ticket)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var result = await _contactService.AddUserTicket(ticket, User.GetUserId());
+        [HttpPost("add-ticket"), ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTicket(AddTicketDto ticket)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _contactService.AddUserTicket(ticket, User.GetUserId());
 
-        //        switch (result)
-        //        {
-        //            case AddTicketResult.Error:
-        //                TempData[ErrorMessage] = "در افزودن تیکت خطایی رخ داد";
-        //                break;
-        //            case AddTicketResult.Success:
-        //                TempData[SuccessMessage] = "تیکت شما با موفقیت ثبت شد";
-        //                TempData[InfoMessage] = "همکاران ما به زودی پاسخ شما را خواهند داد";
-        //                return RedirectToAction("TicketList", "Ticket", new { area = "User" });
-        //        }
-        //    }
+                switch (result)
+                {
+                    case AddTicketResult.Error:
+                        TempData[ErrorMessage] = "در افزودن تیکت خطایی رخ داد";
+                        break;
+                    case AddTicketResult.Success:
+                        TempData[SuccessMessage] = "تیکت شما با موفقیت ثبت شد";
+                        TempData[InfoMessage] = "همکاران ما به زودی پاسخ شما را خواهند داد";
+                        return RedirectToAction("TicketList", "Ticket", new { area = "User" });
+                }
+            }
 
-        //    return View(ticket);
-        //}
+            return View(ticket);
+        }
 
 
 
-        //#endregion
+        #endregion
 
         //#region Show Ticket Details
 

@@ -10,7 +10,7 @@ public interface IContactService : IAsyncDisposable
 
     #region Ticket
 
-    Task<List<FilterTicketDto>> TicketList();
+    Task<FilterTicketDto> TicketList(FilterTicketDto filter);
     Task<AddTicketResult> AddUserTicket(AddTicketDto ticket, long userId);
     Task<TicketDetailDto> GetTicketDetail(long ticketId, long userId);
 
