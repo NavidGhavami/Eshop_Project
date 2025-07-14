@@ -1,4 +1,6 @@
-﻿@model Eshop.Domain.Dtos.Contact.Ticket.AddTicketDto
+﻿@using Eshop.Domain.Entities.Contact.Ticket
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Eshop.Domain.Dtos.Contact.Ticket.AddTicketDto
 
 @{
     ViewData["Title"] = "ایجاد تیکت جدید";
@@ -58,52 +60,59 @@
             <!-- main content -->
             <div class="col-xl-9">
                 <!-- status card -->
-                <form asp-area="User" asp-controller="Account" asp-action="EditProfile" method="post" enctype="multipart/form-data">
+                <form asp-area="User" asp-controller="Ticket" asp-action="AddTicket" method="post">
                     <div class="row g-4 bg-white">
-                        <div class="col-md-4">
+                        <div class="col-md-12">
                             <div class="comment-item">
-                                <input asp-for="FirstName" type="text" class="form-control" placeholder="نام خود را وارد کنید...">
+                                <input asp-for="Title" type="text" class="form-control" placeholder="عنوان تیکت را وارد کنید...">
                                 <label class="form-label label-float fw-bold font-16">
-                                    نام
+                                    عنوان تیکت
                                     <span class="text-danger">*</span>
-                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                    <span asp-validation-for="Title" class="text-danger"></span>
                                 </label>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="comment-item">
-                                <input asp-for="LastName" type="text" class="form-control" placeholder="نام خانوادگی خود را وارد کنید ...">
-                                <label class="form-label label-float fw-bold">
-                                    نام خانوادگی
-                                    <span class="text-danger">*</span>
-                                    <span asp-validation-for="FirstName" class="text-danger"></span>
-                                </label>
+                        <div class="col-md-6">
+                            <div class="d-flex border-ui bg-white alert align-items-center justify-content-between">
+                                <div class="product-meta-color w-100">
+                                    <label class="font-16 fw-bold icon-circle">
+                                        اولویت تیکت
+                                    </label>
+                                    <div class="product-meta-color-items mt-3">
+                                         <select asp-for="TicketPriority" asp-items="@(Html.GetEnumSelectList<TicketPriority>())" class="form-select">
+                                            <option value="0">انتخاب نمایید ...</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="comment-item">
-                                <input asp-for="Email" type="text" class="form-control" placeholder="ایمیل خود را وارد کنید">
-                                <label class="form-label label-float fw-bold">
-                                    ایمیل
-                                </label>
+                        <div class="col-md-6">
+                            <div class="d-flex border-ui bg-white alert align-items-center justify-content-between">
+                                <div class="product-meta-color w-100">
+                                    <label class="font-16 fw-bold icon-circle">
+                                        بخش مورد نظر
+                                    </label>
+                                    <div class="product-meta-color-items mt-3">
+                                        <select asp-for="TicketSection" asp-items="@(Html.GetEnumSelectList<TicketSection>())" class="form-select">
+                                            <option value="0">انتخاب نمایید ...</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="comment-item">
-                                <div class="card-body">
-                                    <div class="account-settings d-flex align-items-center">
-                                        <div class="form-group">
-                                            <label class="form-label">بارگذاری عکس پروفایل</label>
-                                            <input asp-for="Avatar" type="file" class="form-control">
-                                        </div>
-                                    </div>
-                                </div>
+                                <textarea class="form-control" asp-for="Text" ckeditor ="1" rows="5"></textarea>
+                                <label class="form-label label-float fw-bold font-16">
+                                    <span class="text-danger">*</span>
+                                    <span asp-validation-for="Text" class="text-danger"></span>
+                                </label>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-group">
                                 <button type="submit" class="btn main-color-one-bg border-0">
-                                    ویرایش
+                                    ثبت تیکت
                                 </button>
                             </div>
                         </div>

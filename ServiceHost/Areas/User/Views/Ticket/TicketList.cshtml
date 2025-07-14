@@ -1,4 +1,7 @@
-﻿@model Eshop.Domain.Dtos.Contact.Ticket.FilterTicketDto
+﻿@using Eshop.Application.Extensions
+@using Eshop.Domain.Entities.Contact.Ticket
+@using MarketPlace.Application.Utilities
+@model Eshop.Domain.Dtos.Contact.Ticket.FilterTicketDto
 
 @{
     ViewData["Title"] = "لیست تیکت ها";
@@ -62,7 +65,7 @@
                     </div>
                     <div class="col-6">
                         <div class="text-end">
-                            <a href="" class="btn main-color-one-bg rounded-3 btn-action-panel"><i class="bi bi-pencil-square me-2"></i>تیکت جدید</a>
+                            <a asp-area="User" asp-controller="Ticket" asp-action="AddTicket" class="btn main-color-one-bg rounded-3 btn-action-panel"><i class="bi bi-pencil-square me-2"></i>تیکت جدید</a>
                         </div>
                     </div>
                 </div>
@@ -94,12 +97,15 @@
                                                         @ticket.Title
                                                     </p>
                                                 </td>
-                                                <td class="align-middle text-center">
-                                                    <span class="badge bg-secondary ms-2">@ticket.TicketState</span>
-                                                </td>
+                                                @if (ticket.TicketState == TicketState.UnderProgress)
+                                                {
+                                                    <td class="align-middle text-center">
+                                                        <span class="badge bg-warning ms-2">@ticket.TicketState.GetEnumName()</span>
+                                                    </td>
+                                                }
                                                 <td class="align-middle text-center">
                                                     <p class="mt-2 font-16">
-                                                        @ticket.CreateDate
+                                                        @ticket.CreateDate.ToStringShamsiDate()
                                                     </p>
                                                 </td>
                                                 <td class="align-middle text-center">

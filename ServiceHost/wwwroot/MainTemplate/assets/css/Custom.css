@@ -1,2 +1,7 @@
-﻿body {
+﻿
+
+/*Ck Editor*/
+.ck-content {
+    height: 300px;
+    width: 1050px;
 }
