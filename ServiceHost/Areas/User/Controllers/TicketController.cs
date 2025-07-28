@@ -23,7 +23,6 @@ namespace ServiceHost.Areas.User.Controllers
 
         #endregion
 
-
         #region Actions
 
         [HttpGet("user-tickets")]
@@ -70,25 +69,59 @@ namespace ServiceHost.Areas.User.Controllers
 
         #endregion
 
-        //#region Show Ticket Details
+        #region Show Ticket Details
 
-        //[HttpGet("tickets/{ticketId}")]
-        //public async Task<IActionResult> TicketDetail(long ticketId)
-        //{
-        //    var sanitize = new HtmlSanitizer();
-        //    var ticket = await _contactService.GetTicketDetail(ticketId, User.GetUserId());
-        //    ViewBag.AvatarImage = await _contactService.GetUserAvatarTicket(ticketId) ?? string.Empty;
-        //    ViewBag.AvatarImageAdmin = await _contactService.GetAdminUserAvatarTicket(ticketId) ?? string.Empty;
+        [HttpGet("tickets/{ticketId}")]
+        public async Task<IActionResult> TicketDetail(long ticketId)
+        {
+            //var sanitize = new HtmlSanitizer();
+            var ticket = await _contactService.GetTicketDetail(ticketId, User.GetUserId());
+            ViewBag.AvatarImage = await _contactService.GetUserAvatarTicket(ticketId) ?? string.Empty;
+            ViewBag.AvatarImageAdmin = await _contactService.GetAdminUserAvatarTicket(ticketId) ?? string.Empty;
 
-        //    if (ticket == null)
-        //    {
-        //        return RedirectToAction("PageNotFound", "Home");
-        //    }
+            if (ticket == null)
+            {
+                return RedirectToAction("PageNotFound", "Home");
+            }
 
-        //    return View(ticket);
-        //}
+            return View(ticket);
+        }
 
-        //#endregion
+        #endregion
+
+        #region Answer Ticket
+
+        [HttpPost("answer-ticket"), ValidateAntiForgeryToken]
+        public async Task<IActionResult> AnswerTicket(AnswerTicketDto answer)
+        {
+            if (string.IsNullOrEmpty(answer.Text))
+            {
+                TempData[ErrorMessage] = "لطفا متن تیکت را وارد نمایید";
+            }
+
+            if (ModelState.IsValid)
+            {
+                var result = await _contactService.AnswerTicket(answer, User.GetUserId());
+
+                switch (result)
+                {
+                    case AnswerTicketResult.NotForUser:
+                        TempData[ErrorMessage] = "عدم دسترسی";
+                        TempData[WarningMessage] = "درصورت تکرار این مورد، دسترسی شما به صورت کلی از سیستم قطع خواهد شد";
+                        return RedirectToAction("TicketList","Ticket");
+                    case AnswerTicketResult.NotFound:
+                        TempData[ErrorMessage] = "اطلاعات مورد نظر یافت نشد";
+                        return RedirectToAction("TicketList", "Ticket");
+                    case AnswerTicketResult.Success:
+                        TempData[SuccessMessage] = "اطلاعات مورد نظر با موفقیت ثبت شد";
+                        break;
+                }
+            }
+
+            return RedirectToAction("TicketDetail", "Ticket", new { area = "User", ticketId = answer.Id });
+        }
+
+        #endregion
 
         #endregion
     }

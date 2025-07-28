@@ -169,7 +169,7 @@ namespace Eshop.Application.Services.Implementations
             };
 
             await _ticketMessageRepository.AddEntity(newMessage);
-            await _ticketMessageRepository.SaveChanges();   
+            await _ticketMessageRepository.SaveChanges();
 
             return AddTicketResult.Success;
         }
@@ -186,6 +186,7 @@ namespace Eshop.Application.Services.Implementations
                 .GetQuery()
                 .AsQueryable()
                 .Include(x => x.Ticket)
+                .ThenInclude(x => x.Owner)
                 .Where(x => x.TicketId == ticketId && !x.IsDelete)
                 .OrderByDescending(x => x.CreateDate)
                 .ToListAsync();
@@ -202,6 +203,85 @@ namespace Eshop.Application.Services.Implementations
             };
 
         }
+        public async Task<string?> GetUserAvatarTicket(long ticketId)
+        {
+            var ownerAvatar = await _ticketRepository.GetQuery().AsQueryable()
+                .Include(x => x.Owner)
+                .FirstOrDefaultAsync(x => x.Id == ticketId);
+
+            return ownerAvatar?.Owner.Avatar;
+        }
+        public async Task<string?> GetAdminUserAvatarTicket(long ticketId)
+        {
+            var adminAvatar = await _ticketMessageRepository
+                .GetQuery()
+                .AsQueryable()
+                .Include(x => x.Sender)
+                .FirstOrDefaultAsync(x => x.TicketId == ticketId && x.SenderId != x.Ticket.OwnerId);
+
+            return adminAvatar?.Sender.Avatar;
+        }
+        public async Task<AnswerTicketResult> AnswerTicket(AnswerTicketDto answer, long userId)
+        {
+            var ticket = await _ticketRepository.GetEntityById(answer.Id);
+
+            if (ticket == null)
+            {
+                return AnswerTicketResult.NotFound;
+            }
+
+            if (ticket.OwnerId != userId)
+            {
+                return AnswerTicketResult.NotForUser;
+            }
+
+            //var sanitize = new HtmlSanitizer();
+            var ticketMessage = new TicketMessage
+            {
+                TicketId = ticket.Id,
+                SenderId = userId,
+                Text = answer.Text
+            };
+
+            await _ticketMessageRepository.AddEntity(ticketMessage);
+            await _ticketMessageRepository.SaveChanges();
+
+            ticket.IsReadByAdmin = false;
+            ticket.IsReadByOwner = true;
+            ticket.TicketState = TicketState.UnderProgress;
+            await _ticketRepository.SaveChanges();
+
+            return AnswerTicketResult.Success;
+        }
+        public async Task<AnswerTicketResult> AdminAnswerTicket(AnswerTicketDto answer, long userId)
+        {
+            var ticket = await _ticketRepository.GetEntityById(answer.Id);
+
+            if (ticket == null)
+            {
+                return AnswerTicketResult.NotFound;
+            }
+
+            // var sanitize = new HtmlSanitizer();
+            var ticketMessage = new TicketMessage
+            {
+                TicketId = ticket.Id,
+                SenderId = userId,
+                Text = answer.Text
+
+            };
+
+            await _ticketMessageRepository.AddEntity(ticketMessage);
+            await _ticketMessageRepository.SaveChanges();
+
+            ticket.IsReadByAdmin = true;
+            ticket.IsReadByOwner = false;
+            ticket.TicketState = TicketState.Answered;
+
+            await _ticketRepository.SaveChanges();
+
+            return AnswerTicketResult.Success;
+        }
 
         #endregion
 
@@ -215,9 +295,20 @@ namespace Eshop.Application.Services.Implementations
             {
                 await _contactUsRepository.DisposeAsync();
             }
+
+            if (_ticketRepository != null)
+            {
+                await _ticketRepository.DisposeAsync();
+            }
+
+            if (_ticketMessageRepository != null)
+            {
+                await _ticketMessageRepository.DisposeAsync();
+            }
+
         }
 
-        
+
 
         #endregion
     }
