@@ -69,6 +69,9 @@
                         </div>
                     </div>
                 </div>
+                <form asp-area="User" asp-controller="Ticket" asp-action="TicketList" id="filter-form" method="get">
+                    <input type="hidden" asp-for="PageId" />
+                </form>
                 <div class="content">
                     @if (Model != null && Model.Tickets.Any())
                     {

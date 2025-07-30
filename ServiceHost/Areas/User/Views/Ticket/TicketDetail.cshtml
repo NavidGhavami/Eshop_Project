@@ -86,9 +86,13 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="col-12">
                                 <div class="slider-parent rounded-3 py-4">
                                     <div class="container-fluid">
+                                        <!-- Reply Form-->
+                                        <h5 class="mb-3">ارسال پیام</h5>
+                                        <partial name="_AnswerTicketPartial" model="@(new AnswerTicketDto{Id = Model.Ticket.Id})" />
                                         <!-- Messages-->
                                         @if (Model.TicketMessage != null && Model.TicketMessage.Any())
                                         {
@@ -97,8 +101,10 @@
                                                 <div class="comment @(message.SenderId == Model.Ticket.OwnerId ? "active" : "comment-body align-left")">
 
                                                     <div class="comment-author-ava">
-                                                        <img style="width: 50px; height:50px;" src="@(!string.IsNullOrEmpty(avatar) && message.SenderId == Model.Ticket.OwnerId ?
-                                                                          PathExtension.UserAvatarOrigin + avatar : PathExtension.UserAvatarOrigin + adminAvatar)" alt="Avatar">
+                                                        <img style="width: 50px; height:50px;"
+                                                             src="@(!string.IsNullOrEmpty(avatar) && message.SenderId == Model.Ticket.OwnerId ?
+                                                             PathExtension.UserAvatarOrigin + avatar :
+                                                             PathExtension.UserAvatarOrigin + adminAvatar)" alt="@message.Sender.FirstName" title="@message.Sender.FirstName">
                                                     </div>
                                                     <div class="comment-body">
                                                         <p class="comment-text">
@@ -125,14 +131,11 @@
                                                             </div>
                                                         }
 
-                                                        
+
                                                     </div>
                                                 </div>
                                             }
                                         }
-                                        <!-- Reply Form-->
-                                        <h5 class="mb-3">ارسال پیام</h5>
-                                        <partial name="_AnswerTicketPartial" model="@(new AnswerTicketDto{Id = Model.Ticket.Id})"/>
                                     </div>
                                 </div>
                             </div>

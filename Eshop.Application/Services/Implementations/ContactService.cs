@@ -200,6 +200,7 @@ namespace Eshop.Application.Services.Implementations
             {
                 Ticket = ticket,
                 TicketMessage = ticketMessage,
+                Owner = ticket.Owner
             };
 
         }
