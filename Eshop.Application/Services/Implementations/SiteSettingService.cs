@@ -70,13 +70,61 @@ namespace Eshop.Application.Services.Implementations
                 }).ToListAsync();
         }
 
+        public async Task<EditSiteSettingDto> GetSiteSettingForEdit(long id)
+        {
+            var setting = await _siteSettingRepository
+                .GetQuery()
+                .AsQueryable()
+                .SingleOrDefaultAsync(x => x.Id == id);
+            if (setting == null)
+            {
+                return null;
+            }
+
+            return new EditSiteSettingDto
+            {
+                Id = setting.Id,
+                Address = setting.Address,
+                CopyRight = setting.CopyRight,
+                Email = setting.Email,
+                FooterText = setting.FooterText,
+                IsDefault = setting.IsDefault,
+                MapScript = setting.MapScript,
+                Mobile = setting.Mobile,
+                Phone = setting.Phone
+            };
+        }
+        public async Task<bool> EditSiteSetting(EditSiteSettingDto edit, string username)
+        {
+            var mainSetting = await _siteSettingRepository
+                .GetQuery()
+                .AsQueryable()
+                .SingleOrDefaultAsync(x => x.Id == edit.Id);
+
+            if (mainSetting == null)
+            {
+                return false;
+            }
+
+            mainSetting.Id = edit.Id;
+            mainSetting.Address = edit.Address;
+            mainSetting.CopyRight = edit.CopyRight;
+            mainSetting.Email = edit.Email;
+            mainSetting.FooterText = edit.FooterText;
+            mainSetting.MapScript = edit.MapScript;
+            mainSetting.Mobile = edit.Mobile;
+            mainSetting.Phone = edit.Phone;
+
+            _siteSettingRepository.EditEntityByUser(mainSetting, username);
+            await _siteSettingRepository.SaveChanges();
+
+            return true;
+
+
+
+        }
+
         #endregion
-
-
-
-
-
-
 
 
         #region Dispose

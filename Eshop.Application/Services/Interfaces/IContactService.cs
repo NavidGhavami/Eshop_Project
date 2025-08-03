@@ -1,12 +1,21 @@
 ﻿using Eshop.Domain.Dtos.Contact;
 using Eshop.Domain.Dtos.Contact.Ticket;
+using Eshop.Domain.Dtos.Site;
+using Eshop.Domain.Entities.Site;
 
 namespace Eshop.Application.Services.Interfaces;
 
 public interface IContactService : IAsyncDisposable
 { 
     Task CreateContactUs(CreateContactUsDto contact, string userIp, long? userId);
-
+    Task<FilterContactUs> FilterContactUs(FilterContactUs filter);
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    Task<List<AboutUsDto>> GetAll();
+    Task<CreateAboutUsResult> CreateAboutUs(CreateAboutUsDto about);
+    Task<EditAboutUsDto> GetAboutUsForEdit(long id);
+    Task<EditAboutUsResult> EditAboutUs(EditAboutUsDto edit, string username);
 
     #region Ticket
 

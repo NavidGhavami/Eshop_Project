@@ -6,6 +6,8 @@ namespace Eshop.Domain.Dtos.Site
     {
         #region Properties
 
+        public long Id { get; set; }
+
         [Display(Name = "نام سایت")]
         [MaxLength(50, ErrorMessage = "{0} نمی تواند بیشتر از {1} کاراکتر باشد")]
         public string SiteName { get; set; }
@@ -37,6 +39,9 @@ namespace Eshop.Domain.Dtos.Site
 
         [Display(Name = "اصلی هست / نیست")]
         public bool IsDefault { get; set; }
+
+        public string CreateDate { get; set; }
+        public string LastUpdateDate { get; set; }
 
         #endregion
     }

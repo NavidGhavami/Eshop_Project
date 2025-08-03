@@ -1,7 +1,6 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 
-namespace MarketPlace.Application.Utilities
+namespace Eshop.Application.Utilities
 {
     public static class PersianDate
     {

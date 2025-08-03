@@ -2,11 +2,14 @@
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Eshop.Application.Services.Interfaces;
+using Eshop.Application.Utilities;
 using Eshop.Domain.Dtos.Contact;
 using Eshop.Domain.Dtos.Contact.Ticket;
 using Eshop.Domain.Dtos.Paging;
+using Eshop.Domain.Dtos.Site;
 using Eshop.Domain.Entities.Contact;
 using Eshop.Domain.Entities.Contact.Ticket;
+using Eshop.Domain.Entities.Site;
 using Eshop.Domain.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +21,7 @@ namespace Eshop.Application.Services.Implementations
         #region Fields
 
         private readonly IGenericRepository<ContactUs> _contactUsRepository;
+        private readonly IGenericRepository<AboutUs> _aboutUsRepository;
         private readonly IGenericRepository<Ticket> _ticketRepository;
         private readonly IGenericRepository<TicketMessage> _ticketMessageRepository;
 
@@ -26,11 +30,15 @@ namespace Eshop.Application.Services.Implementations
 
         #region Constructor
 
-        public ContactService(IGenericRepository<ContactUs> contactUsRepository, IGenericRepository<Ticket> ticketRepository, IGenericRepository<TicketMessage> ticketMessageRepository)
+        public ContactService(IGenericRepository<ContactUs> contactUsRepository, 
+            IGenericRepository<Ticket> ticketRepository, 
+            IGenericRepository<TicketMessage> ticketMessageRepository,
+            IGenericRepository<AboutUs> aboutUsRepository)
         {
             _contactUsRepository = contactUsRepository;
             _ticketRepository = ticketRepository;
             _ticketMessageRepository = ticketMessageRepository;
+            _aboutUsRepository = aboutUsRepository;
         }
 
         #endregion
@@ -55,6 +63,113 @@ namespace Eshop.Application.Services.Implementations
             await _contactUsRepository.AddEntity(newContact);
             await _contactUsRepository.SaveChanges();
         }
+        #region AboutUs
+
+        public async Task<List<AboutUsDto>> GetAll()
+        {
+            return await _aboutUsRepository.GetQuery().AsQueryable().Select(x => new AboutUsDto
+            {
+                Id = x.Id,
+                HeaderTitle = x.HeaderTitle,
+                Description = x.Description,
+                CreateDate = x.CreateDate.ToStringShamsiDate(),
+                LastUpdateDate = x.LastUpdateDate.ToStringShamsiDate()
+
+            }).ToListAsync();
+        }
+
+        #endregion
+
+        #region ContactUs
+
+        public async Task<FilterContactUs> FilterContactUs(FilterContactUs filter)
+        {
+            var query = _contactUsRepository
+                .GetQuery()
+                .AsQueryable()
+                .Include(x => x.User)
+                .OrderByDescending(x => x.Id);
+
+            #region Filter
+
+            if (!string.IsNullOrEmpty(filter.Email))
+            {
+                query = query.Where(x => EF.Functions.Like(x.Email, $"%{filter.Email}%")).OrderByDescending(x => x.CreateDate);
+            }
+
+
+            #endregion
+
+            #region Paging
+
+            var contactCount = await query.CountAsync();
+
+            var pager = Pager.Build(filter.PageId, contactCount, filter.TakeEntity,
+                filter.HowManyShowPageAfterAndBefore);
+
+            var allEntities = await query.Paging(pager).ToListAsync();
+
+            #endregion
+
+            return filter.SetPaging(pager).SetContactUs(allEntities);
+        }
+        public async Task<CreateAboutUsResult> CreateAboutUs(CreateAboutUsDto about)
+        {
+            var newAboutUs = new AboutUs
+            {
+                HeaderTitle = about.HeaderTitle,
+                Description = about.Description
+            };
+
+            await _aboutUsRepository.AddEntity(newAboutUs);
+            await _aboutUsRepository.SaveChanges();
+
+            return CreateAboutUsResult.Success;
+
+        }
+        public async Task<EditAboutUsDto> GetAboutUsForEdit(long id)
+        {
+            var aboutUs = await _aboutUsRepository
+                .GetQuery()
+                .AsQueryable()
+                .SingleOrDefaultAsync(x => x.Id == id);
+
+            if (aboutUs == null)
+            {
+                return null;
+            }
+
+            return new EditAboutUsDto
+            {
+                Id = aboutUs.Id,
+                HeaderTitle = aboutUs.HeaderTitle,
+                Description = aboutUs.Description,
+            };
+        }
+        public async Task<EditAboutUsResult> EditAboutUs(EditAboutUsDto edit, string username)
+        {
+            var mainAbout = await _aboutUsRepository
+                .GetQuery()
+                .AsQueryable()
+                .SingleOrDefaultAsync(x => x.Id == edit.Id);
+
+            if (mainAbout == null)
+            {
+                return EditAboutUsResult.NotFound;
+            }
+
+
+            mainAbout.HeaderTitle = edit.HeaderTitle;
+            mainAbout.Description = edit.Description;
+
+            _aboutUsRepository.EditEntityByUser(mainAbout, username);
+            await _aboutUsRepository.SaveChanges();
+
+            return EditAboutUsResult.Success;
+        }
+
+        #endregion
+
 
         #endregion
 
