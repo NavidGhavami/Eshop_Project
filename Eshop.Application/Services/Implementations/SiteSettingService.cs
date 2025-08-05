@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Eshop.Application.Services.Interfaces;
+using Eshop.Application.Utilities;
 using Eshop.Domain.Dtos.Site;
 using Eshop.Domain.Entities.Site;
 using Eshop.Domain.Repository;
@@ -52,7 +53,9 @@ namespace Eshop.Application.Services.Implementations
                     IsDefault = x.IsDefault,
                     MapScript = x.MapScript,
                     Mobile = x.Mobile,
-                    Phone = x.Phone
+                    Phone = x.Phone,
+                    CreateDate = x.CreateDate.ToStringShamsiDate(),
+                    LastUpdateDate = x.LastUpdateDate.ToStringShamsiDate()
                 })
                 .FirstOrDefaultAsync(x => x.IsDefault);
 

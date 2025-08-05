@@ -9,6 +9,7 @@ using Eshop.Application.Utilities;
 using Eshop.Domain.Entities.Account.Role;
 using Eshop.Domain.Entities.Account.User;
 using Microsoft.AspNetCore.Http;
+using Eshop.Domain.Dtos.Paging;
 
 namespace Eshop.Application.Services.Implementations
 {
@@ -248,6 +249,190 @@ namespace Eshop.Application.Services.Implementations
             return false;
 
         }
+        public async Task<FilterUserDto> FilterUser(FilterUserDto filter)
+        {
+            var query = _userRepository
+                .GetQuery()
+                .Include(x => x.Role)
+                .AsQueryable();
+
+            if (filter.RoleId > 0)
+            {
+                query = query.Where(x => x.RoleId == filter.RoleId);
+            }
+            if (!string.IsNullOrEmpty(filter.FirstName))
+            {
+                query = query.Where(x => EF.Functions.Like(x.FirstName, $"%{filter.FirstName}%"));
+            }
+            if (!string.IsNullOrEmpty(filter.LastName))
+            {
+                query = query.Where(x => EF.Functions.Like(x.LastName, $"%{filter.LastName}%"));
+            }
+            if (!string.IsNullOrEmpty(filter.Mobile))
+            {
+                query = query.Where(x => EF.Functions.Like(x.Mobile, $"%{filter.Mobile}%"));
+            }
+            if (!string.IsNullOrEmpty(filter.Email))
+            {
+                query = query.Where(x => EF.Functions.Like(x.Email, $"%{filter.Email}%"));
+            }
+
+            #region Paging
+
+
+            var roleCount = await query.CountAsync();
+
+            var pager = Pager.Build(filter.PageId, roleCount, filter.TakeEntity,
+                filter.HowManyShowPageAfterAndBefore);
+
+            var allEntities = await query.Paging(pager).OrderByDescending(x => x.Id).ToListAsync();
+
+
+            #endregion
+
+            return filter.SetPaging(pager).SetUsers(allEntities);
+        }
+        public async Task<EditUserDto> GetUserForEdit(long userId)
+        {
+            var user = await _userRepository.GetQuery()
+                .AsQueryable()
+                .Include(x => x.Role)
+                .SingleOrDefaultAsync(x => x.Id == userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            return new EditUserDto
+            {
+                Id = user.Id,
+                RoleId = user.Role.Id,
+                Email = user.Email,
+                Mobile = user.Mobile,
+                IsBlocked = user.IsBlocked,
+                IsMobileActivated = user.IsMobileActive,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+            };
+        }
+        public async Task<EditUserResult> EditUser(EditUserDto edit, string username)
+        {
+            var mainUser = await _userRepository
+                .GetQuery()
+                .AsQueryable()
+                .Include(x => x.Role)
+                .SingleOrDefaultAsync(x => x.Id == edit.Id);
+
+            if (mainUser == null)
+            {
+                return EditUserResult.UserNotFound;
+            }
+
+            mainUser.Id = edit.Id;
+            mainUser.RoleId = edit.RoleId;
+            mainUser.FirstName = edit.FirstName;
+            mainUser.LastName = edit.LastName;
+            mainUser.Mobile = edit.Mobile;
+            mainUser.Email = edit.Email;
+            mainUser.IsBlocked = edit.IsBlocked;
+            mainUser.IsMobileActive = edit.IsMobileActivated;
+
+            _userRepository.EditEntityByUser(mainUser, username);
+            await _userRepository.SaveChanges();
+
+            return EditUserResult.Success;
+        }
+        #endregion
+
+        #region Role
+
+        public async Task<FilterRoleDto> FilterRole(FilterRoleDto filter)
+        {
+            var query = _roleRepository
+                .GetQuery()
+                .Include(x => x.Users)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(filter.RoleName))
+            {
+                query = query.Where(x => EF.Functions.Like(x.RoleName, $"%{filter.RoleName}%"));
+            }
+
+            #region Paging
+
+            var roleCount = await query.CountAsync();
+
+            var pager = Pager.Build(filter.PageId, roleCount, filter.TakeEntity,
+                filter.HowManyShowPageAfterAndBefore);
+
+            var allEntities = await query.Paging(pager).ToListAsync();
+
+
+            #endregion
+
+            return filter.SetPaging(pager).SetRoles(allEntities);
+        }
+        public async Task<CreateRoleResult> CreateRole(CreateRoleDto role)
+        {
+            var newRole = new Role
+            {
+                RoleName = role.RoleName,
+            };
+
+            await _roleRepository.AddEntity(newRole);
+            await _roleRepository.SaveChanges();
+
+            return CreateRoleResult.Success;
+        }
+        public async Task<EditRoleDto> GetRoleForEdit(long roleId)
+        {
+            var role = await _roleRepository.GetEntityById(roleId);
+            if (role == null)
+            {
+                return null;
+            }
+
+            return new EditRoleDto
+            {
+                Id = role.Id,
+                RoleName = role.RoleName
+            };
+        }
+        public async Task<EditRoleResult> EditRole(EditRoleDto edit, string username)
+        {
+            var mainRole = await _roleRepository
+                .GetQuery()
+                .AsQueryable()
+                .SingleOrDefaultAsync(x => x.Id == edit.Id);
+
+            if (mainRole == null)
+            {
+                return EditRoleResult.Error;
+            }
+
+            mainRole.Id = edit.Id;
+            mainRole.RoleName = edit.RoleName;
+
+            _roleRepository.EditEntityByUser(mainRole, username);
+            await _roleRepository.SaveChanges();
+
+            return EditRoleResult.Success;
+        }
+        public async Task<List<Role>> GetRoles()
+        {
+            return await _roleRepository
+                .GetQuery()
+                .AsQueryable()
+                .Select(x => new Role
+                {
+                    Id = x.Id,
+                    RoleName = x.RoleName
+                })
+                .ToListAsync();
+
+        }
+
         #endregion
 
 

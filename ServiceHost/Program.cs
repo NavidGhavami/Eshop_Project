@@ -1,3 +1,4 @@
+using Eshop.Application.Utilities;
 using Eshop.Domain.Context;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +42,14 @@ builder.Services.AddAuthentication(options =>
     options.LogoutPath = "/Logout";
     options.AccessDeniedPath = "/404-page-not-found";
     options.ExpireTimeSpan = TimeSpan.FromMinutes(43200);
+});
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminArea",
+        builders 
+            => builders.RequireRole(new List<string> 
+                { Roles.Administrator, Roles.AdminAssistant, Roles.ContentUploader }));
+
 });
 
 

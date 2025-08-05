@@ -40,7 +40,10 @@ namespace Eshop.Domain.Dtos.Site
         [Display(Name = "اصلی هست / نیست")]
         public bool IsDefault { get; set; }
 
+        [Display(Name = "تاریخ ایجاد")]
         public string CreateDate { get; set; }
+
+        [Display(Name = "تاریخ ویرایش")]
         public string LastUpdateDate { get; set; }
 
         #endregion

@@ -3,6 +3,7 @@ using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Eshop.Application.Services.Implementations;
 using Eshop.Application.Services.Interfaces;
+using Eshop.Application.Utilities;
 using Eshop.Domain.Repository;
 using GoogleReCaptcha.V3;
 using GoogleReCaptcha.V3.Interface;
@@ -40,6 +41,7 @@ namespace ServiceHost.ContainerDI
                 HtmlEncoder.Create(allowedRanges: new[] { UnicodeRanges.BasicLatin, UnicodeRanges.Arabic }));
             services.AddTransient<IPasswordHasher, PasswordHasher>();
             services.AddHttpClient<ICaptchaValidator, GoogleReCaptchaValidator>();
+            services.AddTransient<IAuthHelper, AuthHelper>();
 
             #endregion
         }
