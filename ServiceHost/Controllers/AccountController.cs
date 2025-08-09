@@ -130,6 +130,11 @@ namespace ServiceHost.Controllers
                         TempData[WarningMessage] = "کاربری با این مشخصات یافت نشد.";
                         ModelState.AddModelError("Mobile", "کاربری با این مشخصات یافت نشد.");
                         break;
+                    case UserLoginResult.UserBlocked:
+                        TempData[WarningMessage] = "کاربری مورد نظر بلاک شده است. ";
+                        TempData[InfoMessage] = "لطفا با پشتیبانی سایت تماس حاصل فرمایید";
+                        ModelState.AddModelError("Mobile", "کاربری با این مشخصات یافت نشد.");
+                        break;
                     case UserLoginResult.MobileNotActivated:
                         TempData[WarningMessage] = "شماره همراه شما فعال نشده است.";
                         ModelState.AddModelError("Mobile", "شماره همراه شما فعال نشده است.");

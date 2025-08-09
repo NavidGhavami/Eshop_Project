@@ -46,9 +46,14 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminArea",
-        builders 
-            => builders.RequireRole(new List<string> 
+        builders
+            => builders.RequireRole(new List<string>
                 { Roles.Administrator, Roles.AdminAssistant, Roles.ContentUploader }));
+
+    options.AddPolicy("UserManagement",
+        builders
+            => builders.RequireRole(new List<string>
+                { Roles.Administrator, Roles.AdminAssistant }));
 
 });
 

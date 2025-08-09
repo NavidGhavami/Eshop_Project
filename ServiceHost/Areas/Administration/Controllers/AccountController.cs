@@ -1,4 +1,5 @@
 ﻿using Eshop.Application.Services.Interfaces;
+using Eshop.Application.Utilities;
 using Eshop.Domain.Dtos.Account.User;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +8,7 @@ using ServiceHost.PresentationExtensions;
 
 namespace ServiceHost.Areas.Administration.Controllers
 {
+    [Authorize("UserManagement", Roles = Roles.Administrator)]
     public class AccountController : AdminBaseController
     {
 
@@ -29,7 +31,7 @@ namespace ServiceHost.Areas.Administration.Controllers
 
         #region User List
 
-        //[Authorize("UserManagement", Roles = Roles.Administrator)]
+        
         [HttpGet("user-list")]
         public async Task<IActionResult> UserList(FilterUserDto filter)
         {
@@ -45,7 +47,6 @@ namespace ServiceHost.Areas.Administration.Controllers
 
         #region Edit User
 
-        //[Authorize("UserManagement", Roles = Roles.Administrator)]
         [HttpGet("edit-user/{userId}")]
         public async Task<IActionResult> EditUser(long userId)
         {
@@ -86,7 +87,6 @@ namespace ServiceHost.Areas.Administration.Controllers
         #endregion
 
         #region Role list
-        //[Authorize("UserManagement", Roles = Roles.Administrator)]
         [HttpGet("role-list")]
         public async Task<IActionResult> RoleList(FilterRoleDto filter)
         {
@@ -98,7 +98,6 @@ namespace ServiceHost.Areas.Administration.Controllers
 
         #region Add Role
 
-        //[Authorize("UserManagement", Roles = Roles.Administrator)]
         [HttpGet("create-role")]
         public IActionResult CreateRole()
         {
@@ -128,7 +127,6 @@ namespace ServiceHost.Areas.Administration.Controllers
 
         #region Edit Role
 
-        //[Authorize("UserManagement", Roles = Roles.Administrator)]
         [HttpGet("edit-role/{roleId}")]
         public async Task<IActionResult> EditRole(long roleId)
         {

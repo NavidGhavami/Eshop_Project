@@ -117,6 +117,11 @@ namespace Eshop.Application.Services.Implementations
                 return UserLoginResult.MobileNotActivated;
             }
 
+            if (user.IsBlocked)
+            {
+                return UserLoginResult.UserBlocked;
+            }
+
             return user.Password != _passwordHasher.EncodePasswordMd5(login.Password)
                 ? UserLoginResult.UserNotFound : UserLoginResult.Success;
         }

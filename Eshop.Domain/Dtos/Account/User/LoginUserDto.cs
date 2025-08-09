@@ -26,6 +26,7 @@ namespace Eshop.Domain.Dtos.Account.User
         Error,
         MobileNotActivated,
         Success,
-        UserNotFound
+        UserNotFound,
+        UserBlocked
     }
 }
