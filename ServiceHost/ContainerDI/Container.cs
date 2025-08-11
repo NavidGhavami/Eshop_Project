@@ -29,6 +29,7 @@ namespace ServiceHost.ContainerDI
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ISmsService, SmsService>();
             services.AddTransient<IContactService, ContactService>();
+            services.AddTransient<ISiteImagesService, SiteImagesService>();
 
 
 

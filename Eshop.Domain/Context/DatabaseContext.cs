@@ -39,6 +39,12 @@ public class DatabaseContext : DbContext
 
     #endregion
 
+    #region Slider
+
+    public DbSet<Slider> Sliders { get; set; }
+
+    #endregion
+
 
     #region OnModelCreating
 
