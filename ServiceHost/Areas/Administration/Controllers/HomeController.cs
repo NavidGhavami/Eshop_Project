@@ -1,6 +1,7 @@
 ﻿using Eshop.Application.Services.Interfaces;
 using Eshop.Domain.Dtos.Contact;
 using Eshop.Domain.Dtos.Site;
+using Eshop.Domain.Dtos.Site.Banner;
 using Eshop.Domain.Dtos.Site.Slider;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
@@ -265,6 +266,92 @@ namespace ServiceHost.Areas.Administration.Controllers
 
         }
         #endregion
+
+        #endregion
+
+        #region Banners
+
+        [HttpGet("banners-list")]
+        public async Task<IActionResult> BannerList()
+        {
+            var banner = await _siteImagesService.GetAllBanners();
+
+            if (banner == null)
+            {
+                return NotFound();
+            }
+            return View(banner);
+        }
+
+        [HttpGet("create-banner")]
+        public async Task<IActionResult> CreateBanner()
+        {
+            return View();
+        }
+
+
+        [HttpPost("create-banner"), ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateBanner(CreateBannerDto banner, IFormFile bannerImage)
+        {
+            var result = await _siteImagesService.CreateBanner(banner, bannerImage);
+
+            switch (result)
+            {
+                case CreateBannerResult.Error:
+                    TempData[ErrorMessage] = "در عملیات افزودن بنر خطایی رخ داد";
+                    break;
+                case CreateBannerResult.Success:
+                    TempData[SuccessMessage] = "بنر با موفقیت ایجاد گردید";
+                    return RedirectToAction("BannerList", "Home");
+            }
+            return View();
+        }
+
+        [HttpGet("edit-banner/{bannerId}")]
+        public async Task<IActionResult> EditBanner(long bannerId)
+        {
+            var banner = await _siteImagesService.GetBannerForEdit(bannerId);
+            return View(banner);
+        }
+
+        [HttpPost("edit-banner/{bannerId}"), ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditBanner(EditBannerDto edit, IFormFile bannerImage)
+        {
+            var user = await _userService.GetUserById(User.GetUserId());
+            var username = user.FirstName + " " + user.LastName;
+            var result = await _siteImagesService.EditBanner(edit, bannerImage);
+
+            switch (result)
+            {
+                case EditBannerResult.Error:
+                    TempData[ErrorMessage] = "اطلاعات مورد نظر یافت نشد";
+                    break;
+                case EditBannerResult.Success:
+                    TempData[SuccessMessage] = "ویرایش بنر با موفقیت انجام شد";
+                    return RedirectToAction("BannerList", "Home");
+
+            }
+
+            return View();
+
+        }
+
+
+        [HttpGet("active-banner/{bannerId}")]
+        public async Task<IActionResult> ActiveBanner(long bannerId)
+        {
+       
+            var banner = await _siteImagesService.ActiveBanner(bannerId);
+            return RedirectToAction("BannerList", "Home");
+        }
+
+        [HttpGet("deactive-banner/{bannerId}")]
+        public async Task<IActionResult> DeactiveBanner(long bannerId)
+        {
+
+            var banner = await _siteImagesService.DeActiveBanner(bannerId);
+            return RedirectToAction("BannerList", "Home");
+        }
 
         #endregion
 

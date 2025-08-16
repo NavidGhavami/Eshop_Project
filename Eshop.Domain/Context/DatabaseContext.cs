@@ -45,6 +45,12 @@ public class DatabaseContext : DbContext
 
     #endregion
 
+    #region Banners
+
+    public DbSet<SiteBanner> SiteBanners { get; set; }
+
+    #endregion
+
 
     #region OnModelCreating
 

@@ -1,6 +1,7 @@
 ﻿using Eshop.Application.Extensions;
 using Eshop.Application.Services.Interfaces;
 using Eshop.Application.Utilities;
+using Eshop.Domain.Dtos.Site.Banner;
 using Eshop.Domain.Dtos.Site.Slider;
 using Eshop.Domain.Entities.Site;
 using Eshop.Domain.Repository;
@@ -15,10 +16,12 @@ namespace Eshop.Application.Services.Implementations
         #region Constructor
 
         private readonly IGenericRepository<Slider> _sliderRepository;
+        private readonly IGenericRepository<SiteBanner> _siteBannerRepository;
 
-        public SiteImagesService(IGenericRepository<Slider> sliderRepository)
+        public SiteImagesService(IGenericRepository<Slider> sliderRepository, IGenericRepository<SiteBanner> siteBannerRepository)
         {
             _sliderRepository = sliderRepository;
+            _siteBannerRepository = siteBannerRepository;
         }
 
         #endregion
@@ -161,6 +164,144 @@ namespace Eshop.Application.Services.Implementations
 
             return true;
         }
+
+        #endregion
+
+        #region Site Banners
+
+        public async Task<List<SiteBanner>> GetSiteBannersByLocations(List<BannersLocations> locations)
+        {
+            return await _siteBannerRepository
+                .GetQuery()
+                .AsQueryable()
+                .Where(x => locations.Contains(x.BannersLocations) && !x.IsDelete)
+                .ToListAsync();
+        }
+        public async Task<List<SiteBanner>> GetAllBanners()
+        {
+            return await _siteBannerRepository
+            .GetQuery()
+            .AsQueryable()
+                .ToListAsync();
+        }
+        public async Task<CreateBannerResult> CreateBanner(CreateBannerDto banner, IFormFile bannerImage)
+        {
+            if (bannerImage != null && bannerImage.IsImage())
+            {
+                var imageName = Guid.NewGuid().ToString("N") + Path.GetExtension(bannerImage.FileName);
+                bannerImage.AddImageToServer(imageName, PathExtension.BannerOriginServer,
+                    100, 100, PathExtension.BannerThumbServer);
+
+                var newBanner = new SiteBanner
+                {
+                    BannersLocations = (BannersLocations)banner.BannersLocation,
+                    ColSize = banner.ColSize,
+                    Url = banner.Url,
+                    ImageName = imageName,
+                    Description = banner.Description
+
+                };
+
+                await _siteBannerRepository.AddEntity(newBanner);
+                await _siteBannerRepository.SaveChanges();
+
+                return CreateBannerResult.Success;
+            }
+
+            return CreateBannerResult.Error;
+        }
+        public async Task<EditBannerDto> GetBannerForEdit(long bannerId)
+        {
+            var banner = await _siteBannerRepository
+                .GetQuery()
+                .AsQueryable()
+                .SingleOrDefaultAsync(x => x.Id == bannerId);
+
+            if (banner == null)
+            {
+                return null;
+            }
+
+            return new EditBannerDto
+            {
+                Id = banner.Id,
+                BannersLocation = (CreateBannerDto.BannersLocations)banner.BannersLocations,
+                Url = banner.Url,
+                ImageName = banner.ImageName,
+                ColSize = banner.ColSize,
+                Description = banner.Description,
+            };
+        }
+        public async Task<EditBannerResult> EditBanner(EditBannerDto edit, IFormFile bannerImage)
+        {
+            var mainBanner = await _siteBannerRepository
+                .GetQuery()
+                .AsQueryable()
+                .SingleOrDefaultAsync(x => x.Id == edit.Id);
+
+            if (mainBanner == null)
+            {
+                return EditBannerResult.Error;
+            }
+
+            if (bannerImage != null && bannerImage.IsImage())
+            {
+                var imageName = Guid.NewGuid().ToString("N") + Path.GetExtension(bannerImage.FileName);
+                bannerImage.AddImageToServer(imageName, PathExtension.BannerOriginServer,
+                    100, 100, PathExtension.BannerThumbServer, mainBanner.ImageName);
+
+                mainBanner.ImageName = imageName;
+            }
+
+            mainBanner.Id = edit.Id;
+            mainBanner.BannersLocations = (BannersLocations)edit.BannersLocation;
+            mainBanner.Url = edit.Url;
+            mainBanner.ColSize = edit.ColSize;
+            mainBanner.Description = edit.Description;
+
+            _siteBannerRepository.EditEntity(mainBanner);
+            await _siteBannerRepository.SaveChanges();
+
+            return EditBannerResult.Success;
+
+        }
+        public async Task<bool> ActiveBanner(long bannerId)
+        {
+            var banner = await _siteBannerRepository.GetQuery()
+                .AsQueryable()
+                .SingleOrDefaultAsync(x => x.Id == bannerId);
+
+            if (banner == null)
+            {
+                return false;
+            }
+
+            banner.IsDelete = false;
+
+            _siteBannerRepository.EditEntity(banner);
+            await _siteBannerRepository.SaveChanges();
+
+            return true;
+        }
+        public async Task<bool> DeActiveBanner(long bannerId)
+        {
+            var banner = await _siteBannerRepository.GetQuery()
+                .AsQueryable()
+                .SingleOrDefaultAsync(x => x.Id == bannerId);
+
+            if (banner == null)
+            {
+                return false;
+            }
+
+            banner.IsDelete = true;
+
+            _siteBannerRepository.EditEntity(banner);
+            await _siteBannerRepository.SaveChanges();
+
+            return true;
+        }
+        
 
         #endregion
 

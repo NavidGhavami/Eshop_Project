@@ -1,4 +1,5 @@
-﻿using Eshop.Domain.Dtos.Site.Slider;
+﻿using Eshop.Domain.Dtos.Site.Banner;
+using Eshop.Domain.Dtos.Site.Slider;
 using Eshop.Domain.Entities.Site;
 using Microsoft.AspNetCore.Http;
 
@@ -15,6 +16,18 @@ public interface ISiteImagesService : IAsyncDisposable
     Task<EditSliderResult> EditSlider(EditSliderDto edit, IFormFile sliderImage, IFormFile mobileSliderImage);
     Task<bool> ActiveSlider(long sliderId);
     Task<bool> DeActiveSlider(long sliderId);
+
+    #endregion
+
+    #region Banners
+
+    Task<List<SiteBanner>> GetSiteBannersByLocations(List<BannersLocations> locations);
+    Task<List<SiteBanner>> GetAllBanners();
+    Task<CreateBannerResult> CreateBanner(CreateBannerDto banner, IFormFile bannerImage);
+    Task<EditBannerDto> GetBannerForEdit(long bannerId);
+    Task<EditBannerResult> EditBanner(EditBannerDto edit, IFormFile bannerImage);
+    Task<bool> ActiveBanner(long bannerId);
+    Task<bool> DeActiveBanner(long bannerId);
 
     #endregion
 }
