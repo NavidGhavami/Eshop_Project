@@ -1,0 +1,33 @@
+﻿@using Eshop.Application.EntitiesExtensions
+@using Eshop.Domain.Entities.Site
+
+
+@{
+    var banners = ViewBag.banners as List<SiteBanner>;
+}
+
+
+@if (banners != null && banners.Any(x=> x.BannersLocations == BannersLocations.Home1))
+{
+    <div class="row">
+       @foreach (var item in banners.Where(x => x.BannersLocations == BannersLocations.Home1))
+       {
+           <div class="@item.ColSize">
+               <a href="@item.Url">
+                   <div class="banner-image-parent">
+                       <div class="banner-image-main">
+                           <img class="rounded-4 h-auto" src="@item.GetSiteMainImageAddress()" alt="@item.Description" title="@item.Description">
+                       </div>
+                       <div class="banner-image-blur">
+                            <img src="@item.GetSiteMainImageAddress()" alt="@item.Description" title="@item.Description">
+                       </div>
+                   </div>
+               </a>
+           </div>
+       }
+    </div>
+}
+
+
+
+

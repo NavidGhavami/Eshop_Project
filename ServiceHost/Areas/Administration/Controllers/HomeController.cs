@@ -293,17 +293,21 @@ namespace ServiceHost.Areas.Administration.Controllers
         [HttpPost("create-banner"), ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBanner(CreateBannerDto banner, IFormFile bannerImage)
         {
-            var result = await _siteImagesService.CreateBanner(banner, bannerImage);
-
-            switch (result)
+            if (ModelState.IsValid)
             {
-                case CreateBannerResult.Error:
-                    TempData[ErrorMessage] = "در عملیات افزودن بنر خطایی رخ داد";
-                    break;
-                case CreateBannerResult.Success:
-                    TempData[SuccessMessage] = "بنر با موفقیت ایجاد گردید";
-                    return RedirectToAction("BannerList", "Home");
+                var result = await _siteImagesService.CreateBanner(banner, bannerImage);
+
+                switch (result)
+                {
+                    case CreateBannerResult.Error:
+                        TempData[ErrorMessage] = "در عملیات افزودن بنر خطایی رخ داد";
+                        break;
+                    case CreateBannerResult.Success:
+                        TempData[SuccessMessage] = "بنر با موفقیت ایجاد گردید";
+                        return RedirectToAction("BannerList", "Home");
+                }
             }
+            
             return View();
         }
 

@@ -285,9 +285,9 @@ namespace Eshop.Application.Services.Implementations
             #region Paging
 
 
-            var roleCount = await query.CountAsync();
+            var userCount = await query.CountAsync();
 
-            var pager = Pager.Build(filter.PageId, roleCount, filter.TakeEntity,
+            var pager = Pager.Build(filter.PageId, userCount, filter.TakeEntity,
                 filter.HowManyShowPageAfterAndBefore);
 
             var allEntities = await query.Paging(pager).OrderByDescending(x => x.Id).ToListAsync();

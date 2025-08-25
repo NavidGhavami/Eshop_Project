@@ -59,7 +59,7 @@
                         <div class="form-group col-lg-6">
                             <label>عنوان نقش</label>
                             <select class="form-control" asp-for="RoleId" asp-items='new SelectList(ViewBag.roles, "Id", "RoleName")'>
-                                <option value="0">عنوان نقش مورد نظر را انتخاب نمایید...</option>
+                                <option>عنوان نقش مورد نظر را انتخاب نمایید...</option>
                             </select>
                             <span class="text-danger float-right" asp-validation-for="RoleId"></span>
                         </div>
