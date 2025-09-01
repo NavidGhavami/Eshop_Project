@@ -2,6 +2,7 @@
 using Eshop.Domain.Entities.Account.User;
 using Eshop.Domain.Entities.Contact;
 using Eshop.Domain.Entities.Contact.Ticket;
+using Eshop.Domain.Entities.Product;
 using Eshop.Domain.Entities.Site;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,6 +49,12 @@ public class DatabaseContext : DbContext
     #region Banners
 
     public DbSet<SiteBanner> SiteBanners { get; set; }
+
+    #endregion
+
+    #region Product
+
+    public DbSet<Product> Products { get; set; }
 
     #endregion
 
