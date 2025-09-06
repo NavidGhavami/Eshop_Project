@@ -1,8 +1,11 @@
-﻿using Eshop.Application.Services.Interfaces;
+﻿using Eshop.Application.Extensions;
+using Eshop.Application.Services.Interfaces;
+using Eshop.Application.Utilities;
 using Eshop.Domain.Dtos.Paging;
 using Eshop.Domain.Dtos.Product;
 using Eshop.Domain.Entities.Product;
 using Eshop.Domain.Repository;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eshop.Application.Services.Implementations
@@ -45,7 +48,7 @@ namespace Eshop.Application.Services.Implementations
             }
 
             switch (filter.OrderBy)
-            { 
+            {
                 case FilterProductOrderBy.CreateDateDescending:
                     query = query.OrderByDescending(x => x.CreateDate);
                     break;
@@ -94,6 +97,52 @@ namespace Eshop.Application.Services.Implementations
             #endregion
         }
 
+        #region Create
+
+        public async Task<CreateProductResult> CreateProduct(CreateProductDto product, IFormFile productImage)
+        {
+            if (productImage == null)
+            {
+                return CreateProductResult.HasNoImage;
+            }
+
+            if (!productImage.IsImage())
+            {
+                return CreateProductResult.ImageErrorType;
+            }
+
+            var imageName = Guid.NewGuid().ToString("N") + Path.GetExtension(productImage.FileName);
+            productImage.AddImageToServer(imageName, PathExtension.ProductOriginServer,
+                100, 100, PathExtension.ProductThumbServer);
+
+            //create Product
+
+            var newProduct = new Product
+            {
+                Title = product.Title,
+                Code = product.Code,
+                Price = product.Price,
+                Image = imageName,
+                IsActive = product.IsActive,
+                Description = product.Description,
+                ShortDescription = product.ShortDescription,
+                ViewCount = 0,
+                SellCount = 0
+
+            };
+
+
+            await _productRepository.AddEntity(newProduct);
+            await _productRepository.SaveChanges();
+
+            return CreateProductResult.Success;
+
+        }
+
+        #endregion
+
+
+
         #endregion
 
 
@@ -110,5 +159,6 @@ namespace Eshop.Application.Services.Implementations
 
 
         #endregion
+
     }
 }
