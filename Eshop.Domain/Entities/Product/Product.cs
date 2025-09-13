@@ -26,11 +26,9 @@ namespace Eshop.Domain.Entities.Product
         public int Price { get; set; }
 
         [Display(Name = "توضیحات کوتاه")]
-        [MaxLength(300, ErrorMessage = "{0} نمی تواند بیشتر از {1} کاراکتر باشد")]
         public string? ShortDescription { get; set; }
 
         [Display(Name = "توضیحات اصلی")]
-        [MaxLength(300, ErrorMessage = "{0} نمی تواند بیشتر از {1} کاراکتر باشد")]
         public string? Description { get; set; }
 
         [Display(Name = "فعال / غیر فعال")]
@@ -52,7 +50,7 @@ namespace Eshop.Domain.Entities.Product
 
         #region Relations
 
-
+        public ICollection<ProductSelectedCategory> ProductSelectedCategories { get; set; }
 
         #endregion
     }

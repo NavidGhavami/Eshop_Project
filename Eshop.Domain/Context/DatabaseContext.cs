@@ -58,6 +58,13 @@ public class DatabaseContext : DbContext
 
     #endregion
 
+    #region Product Category
+
+    public DbSet<ProductCategory> ProductCategories { get; set; }
+    public DbSet<ProductSelectedCategory> ProductSelectedCategories { get; set; }
+
+    #endregion
+
 
     #region OnModelCreating
 

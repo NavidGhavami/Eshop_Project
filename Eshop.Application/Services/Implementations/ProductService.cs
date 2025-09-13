@@ -3,6 +3,7 @@ using Eshop.Application.Services.Interfaces;
 using Eshop.Application.Utilities;
 using Eshop.Domain.Dtos.Paging;
 using Eshop.Domain.Dtos.Product;
+using Eshop.Domain.Dtos.ProductCategory;
 using Eshop.Domain.Entities.Product;
 using Eshop.Domain.Repository;
 using Microsoft.AspNetCore.Http;
@@ -16,10 +17,12 @@ namespace Eshop.Application.Services.Implementations
         #region Constructor
 
         private readonly IGenericRepository<Product> _productRepository;
+        private readonly IGenericRepository<ProductCategory> _productCategoryRepository;
 
-        public ProductService(IGenericRepository<Product> productRepository)
+        public ProductService(IGenericRepository<Product> productRepository, IGenericRepository<ProductCategory> productCategoryRepository)
         {
             _productRepository = productRepository;
+            _productCategoryRepository = productCategoryRepository;
         }
 
         #endregion
@@ -139,13 +142,193 @@ namespace Eshop.Application.Services.Implementations
 
         }
 
+
+
         #endregion
 
 
 
         #endregion
 
+        #region Product Category
 
+        public async Task<FilterProductCategoryDto> FilterProductCategory(FilterProductCategoryDto filter)
+        {
+            var query = _productCategoryRepository
+                .GetQuery()
+                .Include(x => x.ProductSelectedCategories)
+                .Where(x => x.ParentId == null && !x.IsDelete)
+                .AsQueryable();
+
+            #region Filter
+
+            if (!string.IsNullOrEmpty(filter.Title))
+            {
+                query = query.Where(x => EF.Functions.Like(x.Title, $"%{filter.Title}%")).OrderByDescending(x => x.CreateDate);
+            }
+
+            #endregion
+
+            #region Paging
+
+            var productCategoryCount = await query.CountAsync();
+
+            var pager = Pager.Build(filter.PageId, productCategoryCount, filter.TakeEntity,
+                filter.HowManyShowPageAfterAndBefore);
+
+            var allEntities = await query.Paging(pager).ToListAsync();
+
+
+            #endregion
+
+            return filter.SetPaging(pager).SetProduct(allEntities);
+        }
+        public async Task<FilterProductCategoryDto> FilterProductSubCategory(FilterProductCategoryDto filter, long? parentId)
+        {
+            var query = _productCategoryRepository
+                .GetQuery()
+                .Include(x => x.ProductSelectedCategories)
+                .Where(x => x.ParentId == parentId && !x.IsDelete)
+                .AsQueryable();
+
+            #region Filter
+
+            if (!string.IsNullOrEmpty(filter.Title))
+            {
+                query = query.Where(x => EF.Functions.Like(x.Title, $"%{filter.Title}%")).OrderByDescending(x => x.CreateDate);
+            }
+
+            #endregion
+
+            #region Paging
+
+            var productCategoryCount = await query.CountAsync();
+
+            var pager = Pager.Build(filter.PageId, productCategoryCount, filter.TakeEntity,
+                filter.HowManyShowPageAfterAndBefore);
+
+            var allEntities = await query.Paging(pager).ToListAsync();
+
+
+            #endregion
+
+            return filter.SetPaging(pager).SetProduct(allEntities);
+        }
+        public async Task<List<ProductCategory>> GetAllProductCategoriesBy(long? parentId)
+        {
+            if (parentId == null || parentId == 0)
+            {
+                return await _productCategoryRepository
+                    .GetQuery()
+                    .AsQueryable()
+                    .Where(x => !x.IsDelete && x.IsActive && x.ParentId == null)
+                    .ToListAsync();
+            }
+
+            return await _productCategoryRepository
+                .GetQuery()
+                .AsQueryable()
+                .Where(x => !x.IsDelete && x.IsActive && x.ParentId == parentId)
+                .ToListAsync();
+        }
+        public async Task<List<ProductCategory>> GetAllActiveProductCategories()
+        {
+            return await _productCategoryRepository
+                .GetQuery()
+                .AsQueryable()
+                .Where(x => x.IsActive && !x.IsDelete && x.ParentId == null)
+                .ToListAsync();
+        }
+        public async Task<CreateProductCategoryResult> CreateProductCategory(CreateProductCategoryDto category, IFormFile image)
+        {
+            if (string.IsNullOrWhiteSpace(category.Title) && string.IsNullOrWhiteSpace(category.UrlName))
+            {
+                return CreateProductCategoryResult.Error;
+            }
+
+            var newCategory = new ProductCategory
+            {
+                Title = category.Title,
+                UrlName = category.UrlName.Replace(" ", "-"),
+                Icon = category.Icon,
+                ParentId = category.ParentId ?? null,
+                IsActive = true
+            };
+
+            if (image.IsImage())
+            {
+                var imageName = Guid.NewGuid().ToString("N") + Path.GetExtension(image.FileName);
+                image.AddImageToServer(imageName, PathExtension.ProductCategoryOriginServer,
+                    100, 100, PathExtension.ProductCategoryThumbServer);
+
+                newCategory.Image = imageName;
+            }
+            else
+            {
+                return CreateProductCategoryResult.ImageErrorType;
+            }
+
+            await _productCategoryRepository.AddEntity(newCategory);
+            await _productCategoryRepository.SaveChanges();
+
+            return CreateProductCategoryResult.Success;
+        }
+        public async Task<EditProductCategoryDto> GetProductCategoryForEdit(long categoryId)
+        {
+            var category = await _productCategoryRepository
+                .GetQuery()
+                .FirstOrDefaultAsync(x => x.Id == categoryId);
+
+            if (category == null)
+            {
+                return null;
+            }
+
+            return new EditProductCategoryDto
+            {
+                Id = category.Id,
+                ParentId = category.ParentId,
+                Title = category.Title,
+                Image = category.Image,
+                IsActive = category.IsActive,
+                Icon = category.Icon,
+                UrlName = category.UrlName,
+            };
+        }
+        public async Task<EditProductCategoryResult> EditProductCategory(EditProductCategoryDto category, IFormFile image)
+        {
+            var mainCategory = await _productCategoryRepository
+                .GetQuery()
+                .FirstOrDefaultAsync(x => x.Id == category.Id);
+
+            if (mainCategory == null)
+            {
+                return EditProductCategoryResult.NotFound;
+            }
+
+            if (image != null)
+            {
+
+                var imageName = Guid.NewGuid().ToString("N") + Path.GetExtension(image.FileName);
+                image.AddImageToServer(imageName, PathExtension.ProductCategoryOriginServer, 100, 100,
+                    PathExtension.ProductCategoryThumbServer, mainCategory.Image);
+
+                mainCategory.Image = imageName;
+
+            }
+
+            mainCategory.Title = category.Title;
+            mainCategory.UrlName = category.UrlName.Replace(" ", "-");
+            mainCategory.Icon = category.Icon;
+            mainCategory.ParentId = category.ParentId;
+
+            _productCategoryRepository.EditEntity(mainCategory);
+            await _productCategoryRepository.SaveChanges();
+
+            return EditProductCategoryResult.Success;
+        }
+
+        #endregion
 
         #region Dispose
 
@@ -154,6 +337,11 @@ namespace Eshop.Application.Services.Implementations
             if (_productRepository != null)
             {
                 await _productRepository.DisposeAsync();
+            }
+
+            if (_productCategoryRepository != null)
+            {
+                await _productCategoryRepository.DisposeAsync();
             }
         }
 
