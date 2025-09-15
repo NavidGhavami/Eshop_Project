@@ -236,7 +236,7 @@ namespace Eshop.Application.Services.Implementations
             return await _productCategoryRepository
                 .GetQuery()
                 .AsQueryable()
-                .Where(x => x.IsActive && !x.IsDelete && x.ParentId == null)
+                .Where(x => x.IsActive && !x.IsDelete)
                 .ToListAsync();
         }
         public async Task<CreateProductCategoryResult> CreateProductCategory(CreateProductCategoryDto category, IFormFile image)

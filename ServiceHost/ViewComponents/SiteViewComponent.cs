@@ -39,8 +39,17 @@ namespace ServiceHost.ViewComponents
 
     public class MegaMenuViewComponent : ViewComponent
     {
+        private readonly IProductService _productService;
+
+        public MegaMenuViewComponent(IProductService productService)
+        {
+            _productService = productService;
+        }
+
         public async Task<IViewComponentResult> InvokeAsync()
         {
+            var category = await _productService.GetAllActiveProductCategories();
+            ViewBag.ProductCategories = await _productService.GetAllActiveProductCategories();
             return View("MegaMenu");
         }
     }
@@ -151,4 +160,5 @@ namespace ServiceHost.ViewComponents
 
     #endregion
 
+    
 }
