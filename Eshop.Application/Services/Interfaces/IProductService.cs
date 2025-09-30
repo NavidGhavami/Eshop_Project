@@ -11,6 +11,10 @@ public interface IProductService : IAsyncDisposable
 
     Task<FilterProductDto> FilterProducts(FilterProductDto filter);
     Task<CreateProductResult> CreateProduct(CreateProductDto product, IFormFile productImage);
+    Task<EditProductDto> GetProductForEdit(long productId);
+    Task<EditProductResult> EditProductInAdmin(EditProductDto product, IFormFile productImage);
+    Task<List<Product>> GetProductWithMaximumView(int take);
+    Task<List<Product>> GetLatestArrivalProducts(int take);
 
     #endregion
 

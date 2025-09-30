@@ -18,11 +18,14 @@ namespace Eshop.Application.Services.Implementations
 
         private readonly IGenericRepository<Product> _productRepository;
         private readonly IGenericRepository<ProductCategory> _productCategoryRepository;
+        private readonly IGenericRepository<ProductSelectedCategory> _productSelectedRepository;
 
-        public ProductService(IGenericRepository<Product> productRepository, IGenericRepository<ProductCategory> productCategoryRepository)
+        public ProductService(IGenericRepository<Product> productRepository, IGenericRepository<ProductCategory> productCategoryRepository,
+            IGenericRepository<ProductSelectedCategory> productSelectedRepository)
         {
             _productRepository = productRepository;
             _productCategoryRepository = productCategoryRepository;
+            _productSelectedRepository = productSelectedRepository;
         }
 
         #endregion
@@ -99,9 +102,6 @@ namespace Eshop.Application.Services.Implementations
 
             #endregion
         }
-
-        #region Create
-
         public async Task<CreateProductResult> CreateProduct(CreateProductDto product, IFormFile productImage)
         {
             if (productImage == null)
@@ -135,17 +135,137 @@ namespace Eshop.Application.Services.Implementations
             };
 
 
+            // Add Product Selected Categories
+
+            if (product.SelectedCategories != null)
+            {
+                // Create Product Category
+                await AddProductSelectedCategories(newProduct.Id,product.SelectedCategories);
+                await _productSelectedRepository.SaveChanges();
+            }
+
             await _productRepository.AddEntity(newProduct);
             await _productRepository.SaveChanges();
 
             return CreateProductResult.Success;
 
         }
+        public async Task<EditProductDto> GetProductForEdit(long productId)
+        {
+            var product = await _productRepository
+                .GetQuery()
+                .AsQueryable()
+                .FirstOrDefaultAsync(x => x.Id == productId);
+
+            
+            var selectedCategories = await _productSelectedRepository
+                .GetQuery()
+                .AsQueryable()
+                .Where(x => x.ProductId == productId && !x.IsDelete)
+                .Select(x => x.ProductCategoryId)
+                .ToListAsync();
+
+           
+
+            if (product == null)
+            {
+                return null;
+            }
+
+            return new EditProductDto
+            {
+                Id = productId,
+                Title = product.Title,
+                Code = product.Code,
+                Price = product.Price,
+                //InStock = product.InStock,
+                //StockCount = product.StockCount,
+                ProductImage = product.Image,
+                IsActive = (bool)product.IsActive,
+                Description = product.Description,
+                SelectedCategories = selectedCategories,
+                ShortDescription = product.ShortDescription,
+            };
+        }
+        public async Task<EditProductResult> EditProductInAdmin(EditProductDto product, IFormFile productImage)
+        {
+            var mainProduct = await _productRepository
+                .GetQuery()
+                .AsQueryable()
+                .SingleOrDefaultAsync(x => x.Id == product.Id);
 
 
+            if (mainProduct == null)
+            {
+                return EditProductResult.NotFound;
+            }
 
-        #endregion
+            mainProduct.Id = product.Id;
+            mainProduct.Title = product.Title;
+            mainProduct.Code = product.Code;
+            mainProduct.Price = product.Price;
+            mainProduct.IsActive = product.IsActive;
+            mainProduct.Description = product.Description;
+            mainProduct.ShortDescription = product.ShortDescription;
 
+
+            //Product Image
+
+            if (productImage != null && productImage.IsImage())
+            {
+                var imageName = Guid.NewGuid().ToString("N") + Path.GetExtension(productImage.FileName);
+                productImage.AddImageToServer(imageName, PathExtension.ProductOriginServer,
+                    100, 100, PathExtension.ProductThumbServer, mainProduct.Image);
+
+                mainProduct.Image = imageName;
+            }
+
+
+            if (product.SelectedCategories != null)
+            {
+                //Remove All Product Categories
+                await RemoveAllProductSelectedCategories(product.Id);
+
+                // Add Product Categories
+                await AddProductSelectedCategories(product.Id, product.SelectedCategories);
+                await _productSelectedRepository.SaveChanges();
+            }
+
+            _productRepository.EditEntity(mainProduct);
+            await _productRepository.SaveChanges();
+
+            return EditProductResult.Success;
+        }
+        public async Task<List<Product>> GetProductWithMaximumView(int take)
+        {
+            var maxView = await _productRepository
+                .GetQuery()
+                .AsQueryable()
+                .Where(x => !x.IsDelete && x.IsActive.Value)
+                .OrderByDescending(x => x.ViewCount)
+                .Skip(0)
+                .Take(take)
+                .Distinct()
+                .OrderByDescending(x=>x.ViewCount)
+                .ToListAsync();
+
+            return maxView.Count > take ? maxView.Skip(14).Take(1).ToList() : maxView;
+        }
+
+        
+
+        public async Task<List<Product>> GetLatestArrivalProducts(int take)
+        {
+            var latestArrival = await _productRepository
+                .GetQuery()
+                .AsQueryable()
+                .Where(x => !x.IsDelete && x.IsActive.Value)
+                .Take(take)
+                .OrderByDescending(x => x.Id)
+                .ToListAsync();
+            return latestArrival.Count > take ? latestArrival.Skip(14).Take(1).ToList() : latestArrival;
+
+        }
 
 
         #endregion
@@ -326,6 +446,38 @@ namespace Eshop.Application.Services.Implementations
             await _productCategoryRepository.SaveChanges();
 
             return EditProductCategoryResult.Success;
+        }
+
+        #endregion
+
+
+        #region Add or Remove Product Category
+
+        public async Task RemoveAllProductSelectedCategories(long productId)
+        {
+            var selectedProduct = await _productSelectedRepository
+                .GetQuery()
+                .AsQueryable()
+                .Where(x => x.ProductId == productId)
+                .ToListAsync();
+
+            _productSelectedRepository.DeletePermanentEntities(selectedProduct);
+        }
+
+        public async Task AddProductSelectedCategories(long productId, List<long> selectedCategories)
+        {
+            var productSelectedCategories = new List<ProductSelectedCategory>();
+
+            foreach (var categoryId in selectedCategories)
+            {
+                productSelectedCategories.Add(new ProductSelectedCategory
+                {
+                    ProductCategoryId = categoryId,
+                    ProductId = productId
+                });
+            }
+
+            await _productSelectedRepository.AddRangeEntities(productSelectedCategories);
         }
 
         #endregion

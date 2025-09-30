@@ -40,9 +40,8 @@ namespace ServiceHost.Areas.Administration.Controllers
         [HttpGet("create-product")]
         public async Task<IActionResult> CreateProduct()
         {
-            //ViewBag.Categories = await _productService.GetAllActiveProductCategories();
-
             var model = new CreateProductDto();
+            ViewBag.Categories = await _productService.GetAllActiveProductCategories();
             return View(model);
         }
 
@@ -69,9 +68,60 @@ namespace ServiceHost.Areas.Administration.Controllers
                     return RedirectToAction("FilterProduct", "Product");
             }
 
-            //ViewBag.Categories = await _productService.GetAllActiveProductCategories();
+            ViewBag.Categories = await _productService.GetAllActiveProductCategories();
             return View(product);
         }
+
+        #endregion
+
+        #region Edit Product
+
+        #region Edit Products
+
+        [HttpGet("edit-product/{productId}")]
+        public async Task<IActionResult> EditProduct(long productId)
+        {
+            var product = await _productService.GetProductForEdit(productId);
+
+            if (product == null)
+            {
+                return RedirectToAction("PageNotFound", "Home");
+            }
+
+            ViewBag.Categories = await _productService.GetAllActiveProductCategories();
+
+            return View(product);
+        }
+
+        [HttpPost("edit-product/{productId}"), ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProduct(EditProductDto edit, long productId, IFormFile productImage)
+        {
+            var result = await _productService.EditProductInAdmin(edit, productImage);
+
+            switch (result)
+            {
+                case EditProductResult.NotForUser:
+                    TempData[WarningMessage] = "در ویرایش اطلاعات خطایی رخ داده است";
+                    break;
+                case EditProductResult.NotFound:
+                    TempData[ErrorMessage] = "اطلاعات وارد شده یافت نشد";
+                    break;
+                case EditProductResult.ImageErrorType:
+                    TempData[WarningMessage] = "لطفا تصویر محصول را طبق فرمت های ذکر شده وارد نمایید";
+                    TempData[InfoMessage] = "فرمت تصاویر باید به صورت jpg, jpeg, png  باشد";
+                    break;
+                case EditProductResult.Success:
+                    TempData[SuccessMessage] = $"ویرایش محصول {edit.Title} با موفقیت انجام شد";
+                    return RedirectToAction("FilterProduct", "Product", new { area = "Administration" });
+
+            }
+
+            ViewBag.Categories = await _productService.GetAllActiveProductCategories();
+            return View();
+        }
+
+
+        #endregion
 
         #endregion
 
@@ -121,6 +171,7 @@ namespace ServiceHost.Areas.Administration.Controllers
         [HttpGet("create-product-category")]
         public async Task<IActionResult> CreateProductCategory()
         {
+
             return View();
         }
 
