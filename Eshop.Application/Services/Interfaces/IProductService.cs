@@ -18,7 +18,6 @@ public interface IProductService : IAsyncDisposable
 
     #endregion
 
-
     #region Product Category
 
     Task<FilterProductCategoryDto> FilterProductCategory(FilterProductCategoryDto filter);
@@ -29,6 +28,15 @@ public interface IProductService : IAsyncDisposable
         IFormFile image);
     Task<EditProductCategoryDto> GetProductCategoryForEdit(long categoryId);
     Task<EditProductCategoryResult> EditProductCategory(EditProductCategoryDto edit, IFormFile image);
+
+    #endregion
+
+    #region Product Color
+
+    Task<List<ProductColor>> GetAllProductColorInAdminPanel(long productId);
+    Task<CreateProductColorResult> CreateProductColor(CreateProductColorDto color, long productId);
+    Task<EditProductColorDto> GetProductColorForEdit(long colorId);
+    Task<EditProductColorResult> EditProductColor(EditProductColorDto color, long colorId);
 
     #endregion
 }
