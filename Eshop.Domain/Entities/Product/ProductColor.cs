@@ -26,7 +26,7 @@ namespace Eshop.Domain.Entities.Product
 
         [Display(Name = "قیمت رنگ")]
         [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
-        public string Price { get; set; }
+        public int Price { get; set; }
 
         #endregion
 

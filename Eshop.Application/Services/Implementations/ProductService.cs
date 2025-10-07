@@ -455,14 +455,22 @@ namespace Eshop.Application.Services.Implementations
 
         #region Product Color
 
-        public async Task<List<ProductColor>> GetAllProductColorInAdminPanel(long productId)
+        public async Task<List<FilterProductColorDto>> GetAllProductColorInAdminPanel(long productId)
         {
             return await _productColorRepository
                 .GetQuery()
                 .AsQueryable()
                 .Include(x => x.Product)
                 .Where(x => x.Id == productId)
-                .ToListAsync();
+                .Select(x=> new FilterProductColorDto
+                {
+                    Id = x.Id,
+                    ProductId = productId,
+                    ColorName = x.ColorName,
+                    ColorCode = x.ColorCode,
+                    Price = x.Price,
+                    CreateDate = x.CreateDate.ToStringShamsiDate(),
+                }).ToListAsync();
         }
         public async Task<CreateProductColorResult> CreateProductColor(CreateProductColorDto color, long productId)
         {

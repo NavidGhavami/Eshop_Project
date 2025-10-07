@@ -14,13 +14,14 @@ namespace ServiceHost.Areas.Administration.Controllers
 
         private readonly IProductService _productService;
 
+       // public static long ProductId;
+
         public ProductController(IProductService productService)
         {
             _productService = productService;
         }
 
         #endregion
-
 
         #region Product
 
@@ -271,22 +272,23 @@ namespace ServiceHost.Areas.Administration.Controllers
 
         #region Product Color
 
-        [HttpGet("product-color-list")]
-        public async Task<IActionResult> FilterProductColor(FilterProductColorDto filter)
+        [HttpGet("product-color-list/{productId}")]
+        public async Task<IActionResult> FilterProductColor(List<FilterProductColorDto> filter,long productId)
         {
-
-            var productColor = await _productService.FilterProductColor(filter);
+            ViewBag.ProductId = productId;
+            //ProductId = productId;
+            var productColor = await _productService.GetAllProductColorInAdminPanel(productId);
 
             if (productColor == null)
             {
-                return RedirectToAction("PageNotFound", "Home", new { area = "" });
+                return RedirectToAction("PageNotFound", "Home", new { area = "Administration" });
             }
 
             return View(filter);
         }
 
         [HttpGet("create-product-color/{productId}")]
-        public async Task<IActionResult> CreateProductColor()
+        public async Task<IActionResult> CreateProductColor(long productId)
         {
             var model = new CreateProductColorDto();
             return View(model);

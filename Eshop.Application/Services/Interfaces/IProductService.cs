@@ -33,7 +33,7 @@ public interface IProductService : IAsyncDisposable
 
     #region Product Color
 
-    Task<List<ProductColor>> GetAllProductColorInAdminPanel(long productId);
+    Task<List<FilterProductColorDto>> GetAllProductColorInAdminPanel(long productId);
     Task<CreateProductColorResult> CreateProductColor(CreateProductColorDto color, long productId);
     Task<EditProductColorDto> GetProductColorForEdit(long colorId);
     Task<EditProductColorResult> EditProductColor(EditProductColorDto color, long colorId);
