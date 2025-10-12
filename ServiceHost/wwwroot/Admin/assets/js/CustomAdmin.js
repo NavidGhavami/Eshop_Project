@@ -130,7 +130,6 @@ productCheckboxes.forEach(checkbox => {
 
 
 
-
 $('#add_color_button').on('click', function (e) {
 
     e.preventDefault();

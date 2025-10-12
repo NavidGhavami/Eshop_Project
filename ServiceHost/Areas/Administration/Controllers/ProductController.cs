@@ -273,7 +273,7 @@ namespace ServiceHost.Areas.Administration.Controllers
         #region Product Color
 
         [HttpGet("product-color-list/{productId}")]
-        public async Task<IActionResult> FilterProductColor(List<FilterProductColorDto> filter,long productId)
+        public async Task<IActionResult> FilterProductColor(long productId)
         {
             ViewBag.ProductId = productId;
             //ProductId = productId;
@@ -281,10 +281,10 @@ namespace ServiceHost.Areas.Administration.Controllers
 
             if (productColor == null)
             {
-                return RedirectToAction("PageNotFound", "Home", new { area = "Administration" });
+                return RedirectToAction("PageNotFound", "Home", new { area = "Administration"});
             }
 
-            return View(filter);
+            return View(productColor);
         }
 
         [HttpGet("create-product-color/{productId}")]
@@ -313,7 +313,7 @@ namespace ServiceHost.Areas.Administration.Controllers
 
                 case CreateProductColorResult.Success:
                     TempData[SuccessMessage] = $"رنگ های انتخابی با موفقیت افزوده شدند.";
-                    return RedirectToAction("FilterProductColor", "Product");
+                    return RedirectToAction("FilterProductColor", "Product" ,new { area = "Administration", ProductId = productId});
             }
 
             return View(color);

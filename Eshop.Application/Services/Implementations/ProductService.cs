@@ -461,7 +461,7 @@ namespace Eshop.Application.Services.Implementations
                 .GetQuery()
                 .AsQueryable()
                 .Include(x => x.Product)
-                .Where(x => x.Id == productId)
+                .Where(x => x.ProductId == productId)
                 .Select(x=> new FilterProductColorDto
                 {
                     Id = x.Id,
@@ -538,7 +538,6 @@ namespace Eshop.Application.Services.Implementations
         }
 
         #endregion
-
 
         #region Add or Remove Product Category
 
