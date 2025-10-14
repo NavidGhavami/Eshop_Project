@@ -39,4 +39,11 @@ public interface IProductService : IAsyncDisposable
     Task<EditProductColorResult> EditProductColor(EditProductColorDto color, long colorId);
 
     #endregion
+
+    #region Product Feature
+
+    Task<List<FilterProductFeatureDto>> GetAllProductFeatureInAdminPanel(long productId);
+    Task<CreateProductFeatureResult> CreateProductFeature(CreateProductFeatureDto feature, long productId);
+
+    #endregion
 }

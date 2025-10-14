@@ -20,15 +20,18 @@ namespace Eshop.Application.Services.Implementations
         private readonly IGenericRepository<ProductCategory> _productCategoryRepository;
         private readonly IGenericRepository<ProductSelectedCategory> _productSelectedRepository;
         private readonly IGenericRepository<ProductColor> _productColorRepository;
+        private readonly IGenericRepository<ProductFeature> _productFeatureRepository;
 
         public ProductService(IGenericRepository<Product> productRepository, IGenericRepository<ProductCategory> productCategoryRepository,
             IGenericRepository<ProductSelectedCategory> productSelectedRepository, 
-            IGenericRepository<ProductColor> productColorRepository)
+            IGenericRepository<ProductColor> productColorRepository, 
+            IGenericRepository<ProductFeature> productFeatureRepository)
         {
             _productRepository = productRepository;
             _productCategoryRepository = productCategoryRepository;
             _productSelectedRepository = productSelectedRepository;
             _productColorRepository = productColorRepository;
+            _productFeatureRepository = productFeatureRepository;
         }
 
         #endregion
@@ -537,6 +540,44 @@ namespace Eshop.Application.Services.Implementations
             return EditProductColorResult.Success;
         }
 
+
+
+        #endregion
+
+        #region Product Feature
+
+        public async Task<List<FilterProductFeatureDto>> GetAllProductFeatureInAdminPanel(long productId)
+        {
+            return await _productFeatureRepository
+                .GetQuery()
+                .AsQueryable()
+                .Include(x => x.Product)
+                .Where(x => x.ProductId == productId)
+                .Select(x => new FilterProductFeatureDto
+                {
+                    Id = x.Id,
+                    ProductId = productId,
+                    FeatureTitle = x.FeatureTitle,
+                    FeatureValue = x.FeatureValue,
+                    CreateDate = x.CreateDate.ToStringShamsiDate(),
+                }).ToListAsync();
+        }
+        public async Task<CreateProductFeatureResult> CreateProductFeature(CreateProductFeatureDto feature, long productId)
+        {
+            var product = await _productRepository.GetEntityById(productId);
+
+            if (product == null)
+            {
+                return CreateProductFeatureResult.ProductNotFound;
+            }
+
+            await AddProductFeature(productId, feature.ProductFeatures);
+            await _productFeatureRepository.SaveChanges();
+
+
+            return CreateProductFeatureResult.Success;
+        }
+
         #endregion
 
         #region Add or Remove Product Category
@@ -596,6 +637,31 @@ namespace Eshop.Application.Services.Implementations
 
         #endregion
 
+        #region Add or Remove Product Feature
+
+        public async Task AddProductFeature(long productId, List<CreateProductFeatureDto> features)
+        {
+            var productSelectedFeature = new List<ProductFeature>();
+
+            foreach (var productFeature in features)
+            {
+                if (productSelectedFeature.All(x => x.FeatureTitle != productFeature.FeatureTitle))
+                {
+                    productSelectedFeature.Add(new ProductFeature
+                    {
+                        ProductId = productId,
+                        FeatureTitle = productFeature.FeatureTitle,
+                        FeatureValue = productFeature.FeatureValue
+                    });
+                }
+
+            }
+
+            await _productFeatureRepository.AddRangeEntities(productSelectedFeature);
+        }
+
+        #endregion
+
         #region Dispose
 
         public async ValueTask DisposeAsync()
@@ -618,6 +684,11 @@ namespace Eshop.Application.Services.Implementations
             if (_productColorRepository != null)
             {
                 await _productColorRepository.DisposeAsync();
+            }
+
+            if (_productFeatureRepository != null)
+            {
+                await _productFeatureRepository.DisposeAsync();
             }
         }
 

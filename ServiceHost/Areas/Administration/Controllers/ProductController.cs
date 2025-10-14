@@ -320,5 +320,57 @@ namespace ServiceHost.Areas.Administration.Controllers
         }
 
         #endregion
+
+
+        #region Product Feature
+
+        [HttpGet("product-feature-list/{productId}")]
+        public async Task<IActionResult> FilterProductFeature(long productId)
+        {
+            ViewBag.ProductId = productId;
+
+            var productFeature = await _productService.GetAllProductFeatureInAdminPanel(productId);
+
+            if (productFeature == null)
+            {
+                return RedirectToAction("PageNotFound", "Home", new { area = "Administration" });
+            }
+
+            return View(productFeature);
+        }
+
+        [HttpGet("create-product-feature/{productId}")]
+        public async Task<IActionResult> CreateProductFeature(long productId)
+        {
+            var model = new CreateProductFeatureDto();
+            return View(model);
+        }
+
+        [HttpPost("create-product-feature/{productId}"), ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateProductFeature(CreateProductFeatureDto feature, long productId)
+        {
+            var result = await _productService.CreateProductFeature(feature, productId);
+
+            switch (result)
+            {
+                case CreateProductFeatureResult.Error:
+                    TempData[ErrorMessage] = "در ثبت اطلاعات خطایی رخ داد";
+                    break;
+                case CreateProductFeatureResult.ProductNotFound:
+                    TempData[ErrorMessage] = "محصول مورد نظر یافت نشد";
+                    break;
+                case CreateProductFeatureResult.DuplicateFeature:
+                    TempData[WarningMessage] = "ویژگی انتخابی وارد شده تکراری می باشد";
+                    break;
+
+                case CreateProductFeatureResult.Success:
+                    TempData[SuccessMessage] = $"ویژگی های انتخابی با موفقیت افزوده شدند.";
+                    return RedirectToAction("FilterProductFeature", "Product", new { area = "Administration", ProductId = productId });
+            }
+
+            return View(feature);
+        }
+
+        #endregion
     }
 }
