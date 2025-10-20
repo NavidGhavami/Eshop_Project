@@ -23,8 +23,8 @@ namespace Eshop.Application.Services.Implementations
         private readonly IGenericRepository<ProductFeature> _productFeatureRepository;
 
         public ProductService(IGenericRepository<Product> productRepository, IGenericRepository<ProductCategory> productCategoryRepository,
-            IGenericRepository<ProductSelectedCategory> productSelectedRepository, 
-            IGenericRepository<ProductColor> productColorRepository, 
+            IGenericRepository<ProductSelectedCategory> productSelectedRepository,
+            IGenericRepository<ProductColor> productColorRepository,
             IGenericRepository<ProductFeature> productFeatureRepository)
         {
             _productRepository = productRepository;
@@ -146,7 +146,7 @@ namespace Eshop.Application.Services.Implementations
             if (product.SelectedCategories != null)
             {
                 // Create Product Category
-                await AddProductSelectedCategories(newProduct.Id,product.SelectedCategories);
+                await AddProductSelectedCategories(newProduct.Id, product.SelectedCategories);
                 await _productSelectedRepository.SaveChanges();
             }
 
@@ -163,7 +163,7 @@ namespace Eshop.Application.Services.Implementations
                 .AsQueryable()
                 .FirstOrDefaultAsync(x => x.Id == productId);
 
-            
+
             var selectedCategories = await _productSelectedRepository
                 .GetQuery()
                 .AsQueryable()
@@ -171,7 +171,7 @@ namespace Eshop.Application.Services.Implementations
                 .Select(x => x.ProductCategoryId)
                 .ToListAsync();
 
-           
+
 
             if (product == null)
             {
@@ -252,13 +252,13 @@ namespace Eshop.Application.Services.Implementations
                 .Skip(0)
                 .Take(take)
                 .Distinct()
-                .OrderByDescending(x=>x.ViewCount)
+                .OrderByDescending(x => x.ViewCount)
                 .ToListAsync();
 
             return maxView.Count > take ? maxView.Skip(14).Take(1).ToList() : maxView;
         }
 
-        
+
 
         public async Task<List<Product>> GetLatestArrivalProducts(int take)
         {
@@ -460,35 +460,76 @@ namespace Eshop.Application.Services.Implementations
 
         public async Task<List<FilterProductColorDto>> GetAllProductColorInAdminPanel(long productId)
         {
-            return await _productColorRepository
-                .GetQuery()
-                .AsQueryable()
-                .Include(x => x.Product)
-                .Where(x => x.ProductId == productId)
-                .Select(x=> new FilterProductColorDto
-                {
-                    Id = x.Id,
-                    ProductId = productId,
-                    ColorName = x.ColorName,
-                    ColorCode = x.ColorCode,
-                    Price = x.Price,
-                    CreateDate = x.CreateDate.ToStringShamsiDate(),
-                }).ToListAsync();
+            try
+            {
+                return await _productColorRepository
+                    .GetQuery()
+                    .AsQueryable()
+                    .Include(x => x.Product)
+                    .Where(x => x.ProductId == productId)
+                    .Select(x => new FilterProductColorDto
+                    {
+                        Id = x.Id,
+                        ProductId = productId,
+                        ColorName = x.ColorName,
+                        ColorCode = x.ColorCode,
+                        Price = x.Price,
+                        CreateDate = x.CreateDate.ToStringShamsiDate(),
+                    }).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                // نوشتن خطای مورد نظر
+
+                Logger.ShowError(e);
+
+                // نمایش پیغام مناسب به کاربر
+                return new List<FilterProductColorDto>();
+            }
         }
         public async Task<CreateProductColorResult> CreateProductColor(CreateProductColorDto color, long productId)
         {
-            var product = await _productRepository.GetEntityById(productId);
-
-            if (product == null)
+            try
             {
-                return CreateProductColorResult.ProductNotFound;
+                var product = await _productRepository.GetEntityById(productId);
+
+                if (product == null)
+                {
+                    return CreateProductColorResult.ProductNotFound;
+                }
+
+                foreach (var item in color.ProductColors)
+                {
+                    var isDuplicateColorTitle = await _productColorRepository
+                        .GetQuery()
+                        .AnyAsync(x => x.ColorName == item.ColorName);
+
+                    if (isDuplicateColorTitle)
+                    {
+                        return CreateProductColorResult.DuplicateColor;
+                    }
+                }
+
+                await AddProductColors(productId, color.ProductColors);
+                await _productColorRepository.SaveChanges();
+
+                return CreateProductColorResult.Success;
+            }
+            catch (NullReferenceException ex)
+            {
+                Logger.ShowError(ex);
+
+                return CreateProductColorResult.Error;
             }
 
-            await AddProductColors(productId, color.ProductColors);
-            await _productColorRepository.SaveChanges();
+            catch (Exception e)
+            {
+                Logger.ShowError(e);
 
+                return CreateProductColorResult.Error;
+            }
+            
 
-            return CreateProductColorResult.Success;
         }
         public async Task<EditProductColorDto> GetProductColorForEdit(long colorId)
         {
@@ -527,7 +568,6 @@ namespace Eshop.Application.Services.Implementations
                 .AnyAsync(x => mainColor.ColorName == color.ColorName);
 
 
-
             if (isDuplicateColorTitle) return EditProductColorResult.DuplicateColor;
 
             mainColor.ColorName = color.ColorName;
@@ -539,8 +579,6 @@ namespace Eshop.Application.Services.Implementations
 
             return EditProductColorResult.Success;
         }
-
-
 
         #endregion
 
@@ -619,7 +657,7 @@ namespace Eshop.Application.Services.Implementations
 
             foreach (var productColor in colors)
             {
-                if (productSelectedColor.All(x=>x.ColorName != productColor.ColorName))
+                if (productSelectedColor.All(x => x.ColorName != productColor.ColorName))
                 {
                     productSelectedColor.Add(new ProductColor
                     {
@@ -629,7 +667,7 @@ namespace Eshop.Application.Services.Implementations
                         Price = productColor.Price
                     });
                 }
-                
+
             }
 
             await _productColorRepository.AddRangeEntities(productSelectedColor);
