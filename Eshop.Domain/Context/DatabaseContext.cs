@@ -77,6 +77,12 @@ public class DatabaseContext : DbContext
 
     #endregion
 
+    #region Product Galleries
+
+    public DbSet<ProductGallery> ProductGalleries { get; set; }
+
+    #endregion
+
 
     #region OnModelCreating
 

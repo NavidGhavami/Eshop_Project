@@ -321,7 +321,6 @@ namespace ServiceHost.Areas.Administration.Controllers
 
         #endregion
 
-
         #region Product Feature
 
         [HttpGet("product-feature-list/{productId}")]
@@ -369,6 +368,54 @@ namespace ServiceHost.Areas.Administration.Controllers
             }
 
             return View(feature);
+        }
+
+        #endregion
+
+        #region Product Gallery
+
+        [HttpGet("product-gallery-list/{productId}")]
+        public async Task<IActionResult> FilterProductGallery(long productId)
+        {
+            ViewBag.ProductId = productId;
+
+            var productGallery = await _productService.GetAllProductGalleries(productId);
+
+            if (productGallery == null)
+            {
+                return RedirectToAction("PageNotFound", "Home", new { area = "Administration" });
+            }
+
+            return View(productGallery);
+        }
+
+        [HttpGet("create-product-gallery/{productId}")]
+        public async Task<IActionResult> CreateProductGallery(long productId)
+        {
+            var model = new CreateOrEditProductGalleryDto();
+            return View(model);
+        }
+
+        [HttpPost("create-product-gallery/{productId}"), ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateProductGallery(CreateOrEditProductGalleryDto gallery, long productId, IFormFile imageName)
+        {
+            var result = await _productService.CreateProductGallery(gallery, productId, imageName);
+
+            switch (result)
+            {
+                case CreateOrEditProductGalleryResult.Error:
+                    TempData[ErrorMessage] = "در ثبت اطلاعات خطایی رخ داد";
+                    break;
+                case CreateOrEditProductGalleryResult.ProductNotFound:
+                    TempData[ErrorMessage] = "محصول مورد نظر یافت نشد";
+                    break;
+                case CreateOrEditProductGalleryResult.Success:
+                    TempData[SuccessMessage] = $"گالری تصویر با موفقیت افزوده گردید";
+                    return RedirectToAction("FilterProductGallery", "Product", 
+                        new { area = "Administration", ProductId = productId });
+            }
+
+            return View(gallery);
         }
 
         #endregion

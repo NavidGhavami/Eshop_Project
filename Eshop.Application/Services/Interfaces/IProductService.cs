@@ -46,4 +46,13 @@ public interface IProductService : IAsyncDisposable
     Task<CreateProductFeatureResult> CreateProductFeature(CreateProductFeatureDto feature, long productId);
 
     #endregion
+
+    #region Product Gallery
+
+    Task<List<ProductGallery>> GetAllProductGalleries(long productId);
+    Task<CreateOrEditProductGalleryResult> CreateProductGallery(CreateOrEditProductGalleryDto gallery, long productId, IFormFile galleryImage);
+    Task<CreateOrEditProductGalleryDto> GetProductGalleryForEdit(long galleryId);
+    Task<CreateOrEditProductGalleryResult> EditProductGallery(CreateOrEditProductGalleryDto gallery, long galleryId, IFormFile galleryImage);
+
+    #endregion
 }
