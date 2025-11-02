@@ -46,6 +46,97 @@ namespace Eshop.Application.Services.Implementations
         {
             var query = _productRepository
                 .GetQuery()
+                .Include(x => x.ProductColors)
+                .Include(x => x.ProductFeatures)
+                .Include(x => x.ProductGalleries)
+                .AsQueryable();
+
+            #region State
+
+            switch (filter.ProductState)
+            {
+                case FilterProductState.All:
+                    query = query.Where(x => !x.IsDelete);
+                    break;
+                case FilterProductState.Active:
+                    query = query.Where(x => x.IsActive.Value);
+                    break;
+                case FilterProductState.NotActive:
+                    query = query.Where(x => !x.IsActive.Value);
+                    break;
+                default:
+                    return new FilterProductDto();  
+            }
+
+            #endregion
+
+            switch (filter.OrderBy)
+            {
+                case FilterProductOrderBy.CreateDateDescending:
+                    query = query.OrderByDescending(x => x.CreateDate);
+                    break;
+                case FilterProductOrderBy.CreateDateAscending:
+                    query = query.OrderBy(x => x.CreateDate);
+                    break;
+                case FilterProductOrderBy.PriceAscending:
+                    query = query.OrderBy(x => x.Price);
+                    break;
+                case FilterProductOrderBy.PriceDescending:
+                    query = query.OrderByDescending(x => x.Price);
+                    break;
+                case FilterProductOrderBy.ViewDescending:
+                    query = query.OrderByDescending(x => x.ViewCount);
+                    break;
+                case FilterProductOrderBy.SellCountDescending:
+                    query = query.OrderByDescending(x => x.SellCount);
+                    break;
+                case FilterProductOrderBy.SellCountAscending:
+                    query = query.OrderBy(x => x.SellCount);
+                    break;
+                default:
+                    new FilterProductDto();
+                    break;
+            }
+
+
+            var expensiveProduct = await query.OrderByDescending(x => x.Price).FirstOrDefaultAsync();
+
+            filter.FilterMaxPrice = expensiveProduct.Price;
+
+            if (filter.FilterMaxPrice != 0)
+            {
+                query = query.Where(x => x.Price >= filter.SelectedMinPrice);
+                query = query.Where(x => x.Price <= filter.SelectedMaxPrice);
+            }
+            else
+            {
+                filter.SelectedMaxPrice = expensiveProduct.Price;
+            }
+            
+
+            if (!string.IsNullOrEmpty(filter.Category))
+            {
+                query = query.Where(x => x.ProductSelectedCategories.Any(x => x.ProductCategory.UrlName == filter.Category));
+            }
+
+            #region Paging
+
+            var productCount = await query.CountAsync();
+
+            var pager = Pager.Build(filter.PageId, productCount, filter.TakeEntity,
+                filter.HowManyShowPageAfterAndBefore);
+
+            var allEntities = await query.Paging(pager).ToListAsync();
+
+
+            #endregion
+
+            return filter.SetPaging(pager).SetProduct(allEntities);
+        }
+        public async Task<FilterProductDto> FilterProductsInAdmin(FilterProductDto filter)
+        {
+            var query = _productRepository
+                .GetQuery()
                 .AsQueryable();
 
             #region State
@@ -80,10 +171,10 @@ namespace Eshop.Application.Services.Implementations
                 case FilterProductOrderBy.ViewDescending:
                     query = query.OrderByDescending(x => x.ViewCount);
                     break;
-                case FilterProductOrderBy.CountDescending:
+                case FilterProductOrderBy.SellCountDescending:
                     query = query.OrderByDescending(x => x.SellCount);
                     break;
-                case FilterProductOrderBy.CountAscending:
+                case FilterProductOrderBy.SellCountAscending:
                     query = query.OrderBy(x => x.SellCount);
                     break;
             }
@@ -261,9 +352,6 @@ namespace Eshop.Application.Services.Implementations
 
             return maxView.Count > take ? maxView.Skip(14).Take(1).ToList() : maxView;
         }
-
-
-
         public async Task<List<Product>> GetLatestArrivalProducts(int take)
         {
             var latestArrival = await _productRepository
@@ -276,7 +364,6 @@ namespace Eshop.Application.Services.Implementations
             return latestArrival.Count > take ? latestArrival.Skip(14).Take(1).ToList() : latestArrival;
 
         }
-
 
         #endregion
 

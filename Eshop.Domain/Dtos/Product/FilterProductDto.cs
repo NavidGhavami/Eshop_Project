@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Eshop.Domain.Dtos.Paging;
+using Eshop.Domain.Entities.Product;
 
 namespace Eshop.Domain.Dtos.Product
 {
@@ -28,13 +29,12 @@ namespace Eshop.Domain.Dtos.Product
         public int SelectedMaxPrice { get; set; }
         public int MobileSelectedMinPrice { get; set; }
         public int MobileSelectedMaxPrice { get; set; }
-        public bool InStock { get; set; }
         public List<Entities.Product.Product> Products { get; set; }
         public FilterProductState ProductState { get; set; }
         public FilterProductOrderBy OrderBy { get; set; }
         public FilterProductOrder ProductOrder { get; set; }
         public List<long> SelectedProductCategories { get; set; }
-        //public List<Entities.Products.ProductCategory> ProductCategories { get; set; }
+        public List<Entities.Product.ProductCategory> ProductCategories { get; set; }
 
         #endregion
 
@@ -75,13 +75,11 @@ namespace Eshop.Domain.Dtos.Product
         [Display(Name = "غیرفعال")]
         NotActive
     }
-
     public enum FilterProductOrder
     {
         CreateDateDescending,
         CreateDateAscending,
     }
-
     public enum FilterProductOrderBy 
     {
         [Display(Name = "جدیدترین")]
@@ -97,10 +95,10 @@ namespace Eshop.Domain.Dtos.Product
         ViewDescending,
 
         [Display(Name = "پر فروشترین")]
-        CountDescending,
+        SellCountDescending,
 
         [Display(Name = "کم فروشترین")]
-        CountAscending,
+        SellCountAscending,
 
         [Display(Name = "موجودی")]
         StockDescending,

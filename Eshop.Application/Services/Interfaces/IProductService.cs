@@ -10,6 +10,7 @@ public interface IProductService : IAsyncDisposable
     #region Product
 
     Task<FilterProductDto> FilterProducts(FilterProductDto filter);
+    Task<FilterProductDto> FilterProductsInAdmin(FilterProductDto filter);
     Task<CreateProductResult> CreateProduct(CreateProductDto product, IFormFile productImage);
     Task<EditProductDto> GetProductForEdit(long productId);
     Task<EditProductResult> EditProductInAdmin(EditProductDto product, IFormFile productImage);
