@@ -103,15 +103,15 @@ namespace Eshop.Application.Services.Implementations
 
             filter.FilterMaxPrice = expensiveProduct.Price;
 
-            if (filter.FilterMaxPrice != 0)
-            {
-                query = query.Where(x => x.Price >= filter.SelectedMinPrice);
-                query = query.Where(x => x.Price <= filter.SelectedMaxPrice);
-            }
-            else
-            {
-                filter.SelectedMaxPrice = expensiveProduct.Price;
-            }
+            //if (filter.FilterMaxPrice != 0)
+            //{
+            //    query = query.Where(x => x.Price >= filter.SelectedMinPrice);
+            //    query = query.Where(x => x.Price <= filter.SelectedMaxPrice);
+            //}
+            //else
+            //{
+            //    filter.SelectedMaxPrice = expensiveProduct.Price;
+            //}
             
 
             if (!string.IsNullOrEmpty(filter.Category))
