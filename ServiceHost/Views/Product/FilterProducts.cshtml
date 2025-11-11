@@ -10,6 +10,19 @@
     var categories = ViewBag.ProductCategories as List<ProductCategory>;
 }
 
+@section style {
+    <style>
+        .bi-chevron-down {
+            display: inline-block;
+            transition: transform 0.2s ease;
+        }
+
+        a[aria-expanded="true"] .bi-chevron-down {
+            transform: rotate(180deg);
+        }
+    </style>
+}
+
 @section script {
             const input = document.querySelector('input[name="SelectedMinPrice"]');
         input.addEventListener('focus', () => {
@@ -186,9 +199,8 @@
             </div>
             <!-- filter in desktop -->
             <div class="col-lg-3 d-lg-block d-none">
-                <form class="d-flex" method="get" asp-controller="Product" asp-action="filterProduct" id="filter-form">
+                <form class="d-flex" asp-controller="Product" asp-action="FilterProducts" id="filter-form" method="get">
                     <input type="hidden" asp-for="PageId" />
-                    <input type="hidden" asp-for="ProductTitle" />
                     <input type="hidden" asp-for="FilterMinPrice" />
                     <input type="hidden" asp-for="FilterMaxPrice" />
 
@@ -199,7 +211,7 @@
                             <label for="search-products" class="filter-title">جستجو محصولات</label>
                             <div class="position-relative">
                                 <div class="input-group">
-                                    <input type="text" name="product" class="form-control" placeholder="جستجوی محصولات ..." aria-label="Search">
+                                    <input type="text" name="title" class="form-control" placeholder="جستجوی محصولات ..." aria-label="Search">
                                     <button class="btn btn-secondary" type="submit" title="جستجوی محصولات">
                                         <i class="bi bi-search"></i>
                                     </button>
@@ -232,9 +244,80 @@
                                 </div>
                             </div>
                         </section>
+                        <section class="mb-4 border-ui shadow-xl filter-container p-3">
+                            <div class="category-filter-box-desc">
+                                <ul class="list-unstyled">
+
+                                    @if (categories != null && categories.Any())
+                                    {
+                                        @foreach (var category in categories.Where(x => x.ParentId == null))
+                                        {
+                                            var parentId = $"collapse-{category.Id}";
+                                            <li class="mb-2">
+                                                <a class="d-flex align-items-center justify-content-between font-20 text-primary fw-bold"
+                                                   data-bs-toggle="collapse"
+                                                   href="#@parentId"
+                                                   role="button"
+                                                   aria-expanded="false"
+                                                   aria-controls="@parentId">
+
+                                                    <span>@category.Title</span>
+                                                    <i class="bi bi-chevron-down"></i>
+                                                </a>
+
+                                                <div class="collapse mt-2" id="@parentId">
+                                                    @if (categories.Any(x => x.ParentId == category.Id))
+                                                    {
+                                                        <ul class="list-unstyled ps-3">
+                                                            @foreach (var subCategory in categories.Where(x => x.ParentId == category.Id))
+                                                            {
+                                                                var subId = $"collapse-sub-{subCategory.Id}";
+                                                                <li class="mb-1">
+                                                                    <a class="d-flex align-items-center justify-content-between font-18 fw-semibold text-dark"
+                                                                       data-bs-toggle="collapse"
+                                                                       href="#@subId"
+                                                                       role="button"
+                                                                       aria-expanded="false"
+                                                                       aria-controls="@subId">
+                                                                        <span>@subCategory.Title</span>
+                                                                        <i class="bi bi-chevron-down small"></i>
+                                                                    </a>
+
+                                                                    <div class="collapse" id="@subId">
+                                                                        @if (categories.Any(x => x.ParentId == subCategory.Id))
+                                                                        {
+                                                                            <ul class="list-unstyled ps-4">
+                                                                                @foreach (var secondSubCategory in categories.Where(x => x.ParentId == subCategory.Id))
+                                                                                {
+                                                                                    <li>
+                                                                                        <a class="font-16 text-secondary d-block py-1"
+                                                                                           asp-area=""
+                                                                                           asp-controller="Product"
+                                                                                           asp-action="FilterProducts"
+                                                                                           asp-route-Category="@secondSubCategory.UrlName">
+                                                                                            <i class="bi bi-dot"></i>
+                                                                                            @secondSubCategory.Title
+                                                                                        </a>
+                                                                                    </li>
+                                                                                }
+                                                                            </ul>
+                                                                        }
+                                                                    </div>
+                                                                </li>
+                                                            }
+                                                        </ul>
+                                                    }
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                        </section>
+
+                        
                     </aside>
                 </form>
-
             </div>
             <!-- product -->
             <div class="col-lg-9">
@@ -245,19 +328,24 @@
                                 <div class="box_filter d-lg-block d-none">
                                     <ul class="list-inline text-start mb-0">
                                         <li class="list-inline-item title-font ms-0">مرتب سازی بر اساس :</li>
-                                        <li class="list-inline-item"><a href="#">گران ترین</a></li>
-                                        <li class="list-inline-item">
-                                            <a class="active_custom" href="#">ارزان ترین</a>
-                                        </li>
-                                        <li class="list-inline-item"><a href="#">پروفروش ترین</a></li>
-                                        <li class="list-inline-item"><a href="#">داغ ترین</a></li>
-                                        <li class="list-inline-item"><a href="#">محبوب ترین</a></li>
+                                        
+                                        @foreach (var item in Html.GetEnumSelectList<FilterProductOrderBy>())
+                                        {
+                                            <span class="buttonFilter main-color-one-color">
+                                                <input type="radio" id="@item.Value" value="@item.Value" name="@nameof(Model.OrderBy)"
+                                                       @(Convert.ToInt32(item.Value) == Convert.ToInt32(Model.OrderBy) ? "checked" : "") />
+                                                <label class="font-16 fw-bold" style="margin-left:10px;" for="@item.Value">
+                                                    @item.Text
+                                                </label>
+                                            </span>
+                                        }
+
+                                        
                                     </ul>
                                 </div>
                                 <div class="box_filter_counter fs-6"><i class="bi bi-card-list me-2"></i> 123 کالا</div>
                             </div>
                             <div class="d-lg-none d-block">
-                                <form>
                                     <h5 class="mb-3">مرتب سازی بر اساس</h5>
                                     <select class="form-select">
                                         <option value="">گران ترین</option>
@@ -266,7 +354,6 @@
                                         <option value="">داغ ترین</option>
                                         <option value="">محبوب ترین</option>
                                     </select>
-                                </form>
                             </div>
                         </div>
                     </div>

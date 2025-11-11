@@ -9,6 +9,7 @@ using Eshop.Domain.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Eshop.Application.Services.Implementations
 {
@@ -75,9 +76,6 @@ namespace Eshop.Application.Services.Implementations
                 case FilterProductOrderBy.CreateDateDescending:
                     query = query.OrderByDescending(x => x.CreateDate);
                     break;
-                case FilterProductOrderBy.CreateDateAscending:
-                    query = query.OrderBy(x => x.CreateDate);
-                    break;
                 case FilterProductOrderBy.PriceAscending:
                     query = query.OrderBy(x => x.Price);
                     break;
@@ -103,20 +101,27 @@ namespace Eshop.Application.Services.Implementations
 
             filter.FilterMaxPrice = expensiveProduct.Price;
 
-            //if (filter.FilterMaxPrice != 0)
-            //{
-            //    query = query.Where(x => x.Price >= filter.SelectedMinPrice);
-            //    query = query.Where(x => x.Price <= filter.SelectedMaxPrice);
-            //}
-            //else
-            //{
-            //    filter.SelectedMaxPrice = expensiveProduct.Price;
-            //}
-            
+            if (filter.SelectedMaxPrice != 0)
+            {
+                query = query.Where(x =>
+                    x.Price >= filter.SelectedMinPrice);
+                query = query.Where(x =>
+                    x.Price <= filter.SelectedMaxPrice);
+            }
+            else
+            {
+                filter.SelectedMaxPrice = expensiveProduct.Price;
+            }
+
 
             if (!string.IsNullOrEmpty(filter.Category))
             {
                 query = query.Where(x => x.ProductSelectedCategories.Any(x => x.ProductCategory.UrlName == filter.Category));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.ProductTitle))
+            {
+                query = query.Where(x => EF.Functions.Like(x.Title, $"%{filter.ProductTitle}%"));
             }
 
             #region Paging
@@ -158,9 +163,6 @@ namespace Eshop.Application.Services.Implementations
             {
                 case FilterProductOrderBy.CreateDateDescending:
                     query = query.OrderByDescending(x => x.CreateDate);
-                    break;
-                case FilterProductOrderBy.CreateDateAscending:
-                    query = query.OrderBy(x => x.CreateDate);
                     break;
                 case FilterProductOrderBy.PriceDescending:
                     query = query.OrderByDescending(x => x.Price);

@@ -73,3 +73,20 @@ function FillPageId(pageId) {
 }
 
 
+
+//window.$("input[type=radio]").change(function () {
+//    window.$("#pageId").val(1);
+//    window.$("#filter-form").submit();
+//});
+
+
+$('input[name="OrderBy"]').on('change', function () {
+    var selectedValue = $(this).val();
+    var currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('OrderBy', selectedValue);
+    window.location.href = currentUrl.toString();
+});
+
+
+
+

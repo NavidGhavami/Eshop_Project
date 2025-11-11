@@ -19,8 +19,9 @@ namespace ServiceHost.Controllers
 
         [HttpGet("products")]
         [HttpGet("products/{Category}")]
-        public async Task<IActionResult> FilterProducts(FilterProductDto filter)
+        public async Task<IActionResult> FilterProducts(FilterProductDto filter, string title)
         {
+            filter.ProductTitle = title;
             filter.TakeEntity = 12;
             filter = await _productService.FilterProducts(filter);
 

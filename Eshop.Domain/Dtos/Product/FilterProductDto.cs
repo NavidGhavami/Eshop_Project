@@ -8,10 +8,7 @@ namespace Eshop.Domain.Dtos.Product
     {
         #region Constructor
 
-        public FilterProductDto()
-        {
-            OrderBy = FilterProductOrderBy.CreateDateDescending;
-        }
+        
 
         #endregion
 
@@ -99,12 +96,6 @@ namespace Eshop.Domain.Dtos.Product
 
         [Display(Name = "کم فروشترین")]
         SellCountAscending,
-
-        [Display(Name = "موجودی")]
-        StockDescending,
-
-        [Display(Name = "منتخب")]
-        CreateDateAscending,
 
     }
 }
