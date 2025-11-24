@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Eshop.Domain.Entities.Common;
 using Eshop.Domain.Entities.Contact;
+using Eshop.Domain.Entities.ProductDiscount;
 
 namespace Eshop.Domain.Entities.Account.User;
 

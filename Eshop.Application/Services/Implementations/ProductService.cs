@@ -9,7 +9,6 @@ using Eshop.Domain.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Eshop.Application.Services.Implementations
 {

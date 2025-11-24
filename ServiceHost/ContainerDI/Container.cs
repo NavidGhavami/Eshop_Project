@@ -31,6 +31,7 @@ namespace ServiceHost.ContainerDI
             services.AddTransient<IContactService, ContactService>();
             services.AddTransient<ISiteImagesService, SiteImagesService>();
             services.AddTransient<IProductService, ProductService>();
+            services.AddTransient<IProductDiscountService, ProductDiscountService>();
 
 
 

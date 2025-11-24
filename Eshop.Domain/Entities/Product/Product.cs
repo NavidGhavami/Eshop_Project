@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Eshop.Domain.Entities.Common;
+using Eshop.Domain.Entities.ProductDiscount;
+
 
 namespace Eshop.Domain.Entities.Product
 {
@@ -54,6 +56,7 @@ namespace Eshop.Domain.Entities.Product
         public ICollection<ProductColor> ProductColors { get; set; }
         public ICollection<ProductFeature> ProductFeatures { get; set; }
         public ICollection<ProductGallery> ProductGalleries { get; set; }
+        public ICollection<ProductDiscount.ProductDiscount> ProductDiscounts { get; set; }
 
         #endregion
     }

@@ -3,6 +3,7 @@ using Eshop.Domain.Entities.Account.User;
 using Eshop.Domain.Entities.Contact;
 using Eshop.Domain.Entities.Contact.Ticket;
 using Eshop.Domain.Entities.Product;
+using Eshop.Domain.Entities.ProductDiscount;
 using Eshop.Domain.Entities.Site;
 using Microsoft.EntityFrameworkCore;
 
@@ -80,6 +81,13 @@ public class DatabaseContext : DbContext
     #region Product Galleries
 
     public DbSet<ProductGallery> ProductGalleries { get; set; }
+
+    #endregion
+
+    #region Product Discount
+
+    public DbSet<ProductDiscount> ProductDiscounts { get; set; }
+    public DbSet<ProductDiscountUse> ProductDiscountUses { get; set; }
 
     #endregion
 
