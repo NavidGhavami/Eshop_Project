@@ -6,7 +6,6 @@ using Eshop.Domain.Entities.Product;
 using Eshop.Domain.Entities.ProductDiscount;
 using Eshop.Domain.Repository;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 
 namespace Eshop.Application.Services.Implementations
@@ -19,7 +18,7 @@ namespace Eshop.Application.Services.Implementations
         private readonly IGenericRepository<ProductDiscountUse> _productDiscountUseRepository;
         private readonly IGenericRepository<Product> _productRepository;
 
-        public ProductDiscountService(IGenericRepository<ProductDiscount> productDiscountRepository, 
+        public ProductDiscountService(IGenericRepository<ProductDiscount> productDiscountRepository,
             IGenericRepository<ProductDiscountUse> productDiscountUseRepository,
             IGenericRepository<Product> productRepository)
         {
@@ -67,13 +66,13 @@ namespace Eshop.Application.Services.Implementations
 
             return filter.SetPaging(pager).SetProductDiscount(allEntities);
         }
-
-        public async Task<CreateDiscountResult> CreateDiscount(CreateDiscountDto discount)
+        public async Task<CreateDiscountResult> CreateDiscount(CreateDiscountDto discount, long productId)
         {
-            var product = await _productRepository.GetEntityById(discount.ProductId);
+            var product = await _productRepository.GetEntityById(productId);
 
-            if (product == null) { 
-            
+            if (product == null)
+            {
+
                 return CreateDiscountResult.ProductNotFound;
             }
 
@@ -85,14 +84,14 @@ namespace Eshop.Application.Services.Implementations
                 Percentage = discount.Percentage,
             };
 
-            
+
             await _productDiscountRepository.AddEntity(newDiscount);
             await _productDiscountRepository.SaveChanges();
 
             return CreateDiscountResult.Success;
         }
 
-        public Task<EditDiscountDto> GetDiscountForEdit(long discountId)
+        public async Task<EditDiscountDto> GetDiscountForEdit(long discountId)
         {
             throw new NotImplementedException();
         }
@@ -102,9 +101,9 @@ namespace Eshop.Application.Services.Implementations
             throw new NotImplementedException();
         }
 
-        
 
-        
+
+
 
 
         #region Dispose

@@ -358,6 +358,7 @@ namespace Eshop.Application.Services.Implementations
             var latestArrival = await _productRepository
                 .GetQuery()
                 .AsQueryable()
+                .Include(x=>x.ProductDiscounts)
                 .Where(x => !x.IsDelete && x.IsActive.Value)
                 .Take(take)
                 .OrderByDescending(x => x.Id)

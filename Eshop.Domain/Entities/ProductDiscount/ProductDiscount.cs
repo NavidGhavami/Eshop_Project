@@ -10,6 +10,7 @@ namespace Eshop.Domain.Entities.ProductDiscount
         public long ProductId { get; set; }
 
         [Range(0, 100)]
+        [Display(Name = "درصد تخفیف")]
         public int Percentage { get; set; }
 
         public DateTime ExpireDate { get; set; }

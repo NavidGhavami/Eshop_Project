@@ -18,9 +18,11 @@ namespace ServiceHost.Areas.Administration.Controllers
 
         [HttpGet("discounts")]
         [HttpGet("discounts/{productId}")]
-        public async Task<IActionResult> FilterDiscounts(FilterProductDiscountDto filter)
+        public async Task<IActionResult> FilterDiscounts(FilterProductDiscountDto filter, long productId)
         {
             var productDiscount = await _productDiscountService.FilterProductDiscount(filter);
+
+            ViewBag.ProductId = productId;
 
             return View(filter);
         }
@@ -29,18 +31,18 @@ namespace ServiceHost.Areas.Administration.Controllers
 
         #region Create Discount
 
-        [HttpGet("create-discount")]
-        public async Task<IActionResult> CreateDiscount()
+        [HttpGet("create-discount/{productId}")]
+        public async Task<IActionResult> CreateDiscount(long productId)
         {
             return View();
         }
 
-        [HttpPost("create-discount"), ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateDiscount(CreateDiscountDto discount)
+        [HttpPost("create-discount/{productId}"), ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateDiscount(CreateDiscountDto discount, long productId)
         {
             if (ModelState.IsValid)
             {
-                var result = await _productDiscountService.CreateDiscount(discount);
+                var result = await _productDiscountService.CreateDiscount(discount, productId);
 
                 switch (result)
                 {
@@ -55,7 +57,7 @@ namespace ServiceHost.Areas.Administration.Controllers
                         break;
                     case CreateDiscountResult.Success:
                         TempData[SuccessMessage] = "عملیات ثبت تخفیف برای محصول مورد نظر با موفقیت انجام شد";
-                        return RedirectToAction("FilterDiscounts");
+                        return RedirectToAction("FilterDiscounts", new { area = "Administration", ProductId = productId });
                 }
             }
             return View(discount);

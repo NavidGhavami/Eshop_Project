@@ -9,6 +9,7 @@ using GoogleReCaptcha.V3;
 using GoogleReCaptcha.V3.Interface;
 using MarketPlace.Application.Services.Implementations;
 using MarketPlace.Application.Services.Interfaces;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ServiceHost.ContainerDI
 {
@@ -32,6 +33,8 @@ namespace ServiceHost.ContainerDI
             services.AddTransient<ISiteImagesService, SiteImagesService>();
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IProductDiscountService, ProductDiscountService>();
+
+            
 
 
 
