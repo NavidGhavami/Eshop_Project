@@ -90,18 +90,35 @@ namespace Eshop.Application.Services.Implementations
 
             return CreateDiscountResult.Success;
         }
+        public async Task<List<ProductDiscountAmazing>> GetProductDiscountAmazing(int take = 10)
+        {
+            var discountAmazing = await  _productDiscountRepository
+                .GetQuery()
+                .AsQueryable()
+                .Include(x => x.Product)
+                .Where(x => x.ExpireDate >= DateTime.Now)
+                .Take(take)
+                .Select(x => new ProductDiscountAmazing
+                {
+                    ProductId = x.ProductId,
+                    ProductTitle = x.Product.Title,
+                    DiscountNumber = x.DiscountNumber,
+                    Percentage = x.Percentage,
+                    ExpireDate = x.ExpireDate,
+                    ProductImage = x.Product.Image,
+                    ProductPrice = x.Product.Price
+                }).ToListAsync();
 
+            return discountAmazing;
+        }
         public async Task<EditDiscountDto> GetDiscountForEdit(long discountId)
         {
             throw new NotImplementedException();
         }
-
         public Task<EditDiscountResult> EditDiscount(EditDiscountDto edit)
         {
             throw new NotImplementedException();
         }
-
-
 
 
 
