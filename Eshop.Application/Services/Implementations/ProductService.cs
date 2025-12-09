@@ -9,6 +9,7 @@ using Eshop.Domain.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using Eshop.Domain.Entities.ProductDiscount;
 
 namespace Eshop.Application.Services.Implementations
 {
@@ -23,12 +24,14 @@ namespace Eshop.Application.Services.Implementations
         private readonly IGenericRepository<ProductColor> _productColorRepository;
         private readonly IGenericRepository<ProductFeature> _productFeatureRepository;
         private readonly IGenericRepository<ProductGallery> _productGalleryRepository;
+        private readonly IGenericRepository<ProductDiscount> _productDiscountRepository;
 
         public ProductService(IGenericRepository<Product> productRepository, IGenericRepository<ProductCategory> productCategoryRepository,
             IGenericRepository<ProductSelectedCategory> productSelectedRepository,
             IGenericRepository<ProductColor> productColorRepository,
-            IGenericRepository<ProductFeature> productFeatureRepository, 
-            IGenericRepository<ProductGallery> productGallery, IGenericRepository<ProductGallery> productGalleryRepository)
+            IGenericRepository<ProductFeature> productFeatureRepository,
+            IGenericRepository<ProductGallery> productGallery, IGenericRepository<ProductGallery> productGalleryRepository,
+            IGenericRepository<ProductDiscount> productDiscountRepository)
         {
             _productRepository = productRepository;
             _productCategoryRepository = productCategoryRepository;
@@ -36,6 +39,7 @@ namespace Eshop.Application.Services.Implementations
             _productColorRepository = productColorRepository;
             _productFeatureRepository = productFeatureRepository;
             _productGalleryRepository = productGalleryRepository;
+            _productDiscountRepository = productDiscountRepository;
         }
 
         #endregion
@@ -65,7 +69,7 @@ namespace Eshop.Application.Services.Implementations
                     query = query.Where(x => !x.IsActive.Value);
                     break;
                 default:
-                    return new FilterProductDto();  
+                    return new FilterProductDto();
             }
 
             #endregion
@@ -358,13 +362,67 @@ namespace Eshop.Application.Services.Implementations
             var latestArrival = await _productRepository
                 .GetQuery()
                 .AsQueryable()
-                .Include(x=>x.ProductDiscounts)
+                .Include(x => x.ProductDiscounts)
                 .Where(x => !x.IsDelete && x.IsActive.Value)
                 .Take(take)
                 .OrderByDescending(x => x.Id)
                 .ToListAsync();
             return latestArrival.Count > take ? latestArrival.Skip(14).Take(1).ToList() : latestArrival;
 
+        }
+        public async Task<ProductDetailsDto> GetProductDetails(long productId)
+        {
+            var product = await _productRepository
+                .GetQuery()
+                .AsQueryable()
+                .Include(x => x.ProductColors)
+                .Include(x => x.ProductFeatures)
+                .Include(x => x.ProductDiscounts)
+                .Include(x => x.ProductGalleries)
+                .Include(x => x.ProductSelectedCategories)
+                .ThenInclude(x => x.ProductCategory)
+                .FirstOrDefaultAsync(x => x.Id == productId);
+
+            var productDiscount = await _productDiscountRepository
+                .GetQuery()
+                .Include(x => x.ProductDiscountUse)
+                .OrderByDescending(x => x.CreateDate)
+                .FirstOrDefaultAsync(x => x.ProductId == productId && x.ExpireDate >= DateTime.Now);
+
+            var selectedCategoriesIds = product.ProductSelectedCategories.Select(x => x.ProductCategoryId).ToList();
+
+            var relatedProducts = await _productRepository
+                .GetQuery()
+                .Include(x => x.ProductDiscounts)
+                .Where(x => x.ProductSelectedCategories.Any(c => selectedCategoriesIds.Contains(c.ProductCategoryId)) && x.Id != productId)
+                .ToListAsync();
+
+            product.ViewCount += 1;
+            await _productRepository.SaveChanges();
+
+            var productDetail = new ProductDetailsDto
+            {
+                ProductId = productId,
+                Title = product.Title,
+                Code = product.Code,
+                Price = product.Price,
+                Image = product.Image,
+                View = product.ViewCount,
+                Description = product.Description,
+                ProductColors = product.ProductColors.ToList(),
+                ProductFeatures = product.ProductFeatures.ToList(),
+                ProductGalleries = product.ProductGalleries.Take(10).ToList(),
+                ProductDiscount = productDiscount,
+                ProductCategories = product.ProductSelectedCategories.Select(x => x.ProductCategory).ToList(),
+                RelatedProducts = relatedProducts,
+                //ProductBrand = product.ProductBrand,
+                //ProductComments = product.ProductComments
+                //    .Where(x => x.CommentAcceptanceState == CommentAcceptanceState.Accepted && !x.IsDelete)
+                //    .OrderByDescending(x => x.Id)
+                //    .ToList(),
+            };
+
+            return productDetail;
         }
 
         #endregion
@@ -621,7 +679,7 @@ namespace Eshop.Application.Services.Implementations
 
                 return CreateProductColorResult.Error;
             }
-            
+
 
         }
         public async Task<EditProductColorDto> GetProductColorForEdit(long colorId)

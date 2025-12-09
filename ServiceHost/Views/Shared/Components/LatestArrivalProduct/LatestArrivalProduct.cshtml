@@ -19,7 +19,7 @@
                     {
                         <div class="swiper-slide">
                             <div class="product-box border-ui">
-                                <a href="#">
+                                <a asp-controller="Product" asp-action="ProductDetails" asp-route-productId="@product.Id" asp-route-title="@product.Title.FixTextForUrl()">
                                     <div class="product-image">
                                         <img src="@(!string.IsNullOrEmpty(product.Image) ? PathExtension.ProductOrigin + product.Image : PathExtension.NoImage)"
                                              alt="@product.Title" title="@product.Title" class="img-fluid">

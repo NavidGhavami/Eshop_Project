@@ -38,6 +38,23 @@ namespace ServiceHost.Controllers
 
         #endregion
 
+        #region Product Details
+
+        [HttpGet("products/{productId}/{title}")]
+        public async Task<IActionResult> ProductDetails(long productId, string title)
+        {
+            var product = await _productService.GetProductDetails(productId);
+
+            if (product == null)
+            {
+                return RedirectToAction("PageNotFound", "Home");
+            }
+
+            return View(product);
+        }
+
+        #endregion
+
         #endregion
     }
 }

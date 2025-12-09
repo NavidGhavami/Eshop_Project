@@ -16,6 +16,7 @@ public interface IProductService : IAsyncDisposable
     Task<EditProductResult> EditProductInAdmin(EditProductDto product, IFormFile productImage);
     Task<List<Product>> GetProductWithMaximumView(int take);
     Task<List<Product>> GetLatestArrivalProducts(int take);
+    Task<ProductDetailsDto> GetProductDetails(long productId);
 
     #endregion
 

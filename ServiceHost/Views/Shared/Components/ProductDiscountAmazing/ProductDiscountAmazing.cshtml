@@ -25,12 +25,15 @@
                                                     </div>
 
                                                     <div class="offer-img">
-                                                        <img src="@(!string.IsNullOrEmpty(item.ProductImage)
-                                                                                                                                                                                                                                                                                                                        ? PathExtension.ProductOrigin + item.ProductImage
-                                                                                                                                                                                                                                                                                                                        : PathExtension.NoImage)"
-                                                             alt="@item.ProductTitle"
-                                                             title="@item.ProductTitle"
-                                                             class="img-fluid">
+                                                        <a asp-controller="Product" asp-action="ProductDetails" asp-route-productId="@item.ProductId" asp-route-title="@item.ProductTitle.FixTextForUrl()">
+                                                            <img src="@(!string.IsNullOrEmpty(item.ProductImage)
+                                                                          ? PathExtension.ProductOrigin + item.ProductImage
+                                                                          : PathExtension.NoImage)"
+                                                                 alt="@item.ProductTitle"
+                                                                 title="@item.ProductTitle"
+                                                                 class="img-fluid">
+                                                        </a>
+                                                      
                                                     </div>
                                                 </div>
 
@@ -66,9 +69,7 @@
 
                                                                     <p class="card-text fw-bold fs-5">
                                                                         @(Convert.ToInt32(
-                                                                                                                                        item.ProductPrice -
-                                                                                                                                        ((item.ProductPrice * item.Percentage) / 100.0)
-                                                                                                                                        ).ToString("#,0"))
+                                                                            item.ProductPrice - ((item.ProductPrice * item.Percentage) / 100.0)).ToString("#,0"))
                                                                         <span class="fw-normal fs-6">تومان</span>
                                                                     </p>
                                                                 </div>
