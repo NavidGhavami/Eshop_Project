@@ -91,6 +91,11 @@ public class DatabaseContext : DbContext
 
     #endregion
 
+    #region Product Brand
+
+    public DbSet<ProductBrand> ProductBrands { get; set; }
+
+    #endregion
 
     #region OnModelCreating
 

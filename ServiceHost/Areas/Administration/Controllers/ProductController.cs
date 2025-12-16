@@ -419,5 +419,84 @@ namespace ServiceHost.Areas.Administration.Controllers
         }
 
         #endregion
+
+        #region Product Brand
+
+        [HttpGet("product-brand-list")]
+        public async Task<IActionResult> ProductBrandList(FilterProductBrandDto filter)
+        {
+            filter.TakeEntity = 10;
+            filter.ProductBrandState = FilterProductBrandState.All;
+            filter = await _productService.FilterProductBrands(filter);
+
+            return View(filter);
+        }
+
+        [HttpGet("create-product-brand")]
+        public async Task<IActionResult> CreateProductBrand()
+        {
+            return View();
+        }
+
+        [HttpPost("create-product-brand"), ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateProductBrand(CreateProductBrandDto brand, IFormFile brandImage)
+        {
+
+            var result = await _productService.CreateProductBrand(brand, brandImage);
+
+            switch (result)
+            {
+                case CreateBrandResult.Error:
+                    TempData[SuccessMessage] = "در ثبت اطلاعات خطایی رخ داد";
+                    break;
+                case CreateBrandResult.Success:
+                    TempData[SuccessMessage] = $"ثبت برند {brand.BrandName}  با موفقیت ایجاد گردید";
+                    return RedirectToAction("ProductBrandList", "Product", new { area = "Administration" });
+            }
+
+            return View(brand);
+        }
+
+        [HttpGet("edit-product-brand/{brandId}")]
+        public async Task<IActionResult> EditProductBrand(long brandId)
+        {
+            var brand = await _productService.GetProductBrandForEdit(brandId);
+
+            if (brand == null)
+            {
+                return RedirectToAction("PageNotFound", "Home");
+            }
+
+            return View(brand);
+        }
+
+        [HttpPost("edit-product-brand/{brandId}")]
+        public async Task<IActionResult> EditProductBrand(EditProductBrandDto edit, long brandId, IFormFile brandImage)
+        {
+            var result = await _productService.EditProductBrand(edit, brandId, brandImage);
+
+            switch (result)
+            {
+                case EditBrandResult.NotFound:
+                    TempData[WarningMessage] = "اطلاعات مورد نظر یافت نشد";
+                    break;
+                case EditBrandResult.Success:
+                    TempData[SuccessMessage] = "اطلاعات مورد نظر با موفقیت ویرایش شد ";
+                    return RedirectToAction("ProductBrandList", "Product", new { area = "Administration" });
+            }
+
+
+            return View(edit);
+        }
+
+        //[HttpGet("brands-autocomplete")]
+        //public async Task<IActionResult> GetProductBrandJson(string brandName)
+        //{
+        //    var data = await _productService.FilterProductBrandForSellerByBrandName(brandName);
+
+        //    return new JsonResult(data);
+        //}
+
+        #endregion
     }
 }

@@ -57,4 +57,14 @@ public interface IProductService : IAsyncDisposable
     Task<CreateOrEditProductGalleryResult> EditProductGallery(CreateOrEditProductGalleryDto gallery, long galleryId, IFormFile galleryImage);
 
     #endregion
+
+    #region Product Brand
+
+    Task<List<ProductBrand>> GetAllBrands();
+    Task<FilterProductBrandDto> FilterProductBrands(FilterProductBrandDto filter);
+    Task<CreateBrandResult> CreateProductBrand(CreateProductBrandDto brand, IFormFile brandImage);
+    Task<EditProductBrandDto> GetProductBrandForEdit(long brandId);
+    Task<EditBrandResult> EditProductBrand(EditProductBrandDto brand, long brandId, IFormFile brandImage);
+
+    #endregion
 }

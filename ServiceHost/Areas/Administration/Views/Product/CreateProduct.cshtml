@@ -1,6 +1,5 @@
 ﻿@using Eshop.Application.Utilities
 @using Eshop.Domain.Entities.Product
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Eshop.Domain.Dtos.Product.CreateProductDto
 @{
     ViewData["Title"] = "ایجاد محصول";
@@ -94,11 +93,11 @@
                                 <input id="priceInput" asp-for="Price" type="text" class="form-control rounded-pill" placeholder="قیمت محصول - مثال : 15000">
                                 <span asp-validation-for="Price" class="text-danger"></span>
                             </div>
-                            @* <div class="col-md-6">
+                            <div class="col-md-6">
                                 <label class="form-label">برند محصول<span class="text-danger ms-1">*</span></label>
-                                <input id="ProductBrandName" asp-for="BrandName" type="text" class="form-control rounded-pill" style="font-size: 18px; font-family: 'yekan';" placeholder="برند محصول . مـثال : تاژ، چی توز، لادن و ...">
+                                <input id="ProductBrandName" asp-for="BrandName" type="text" class="form-control rounded-pill" style="font-size: 18px; font-family: 'yekan';" placeholder="برند محصول . مـثال : آیفون، سامسونگ، سونی و  ...">
                                 <span asp-validation-for="BrandName" class="text-danger"></span>
-                            </div> *@
+                            </div>
                             <div class="form-group col-md-3" style="margin-top: 25px;">
                                 <label>نمایش محصول در سایت</label>
                                 <input type="checkbox" style="width: 30px; height: 30px;" value="true"

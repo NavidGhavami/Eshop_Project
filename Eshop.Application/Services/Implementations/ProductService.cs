@@ -25,13 +25,15 @@ namespace Eshop.Application.Services.Implementations
         private readonly IGenericRepository<ProductFeature> _productFeatureRepository;
         private readonly IGenericRepository<ProductGallery> _productGalleryRepository;
         private readonly IGenericRepository<ProductDiscount> _productDiscountRepository;
+        private readonly IGenericRepository<ProductBrand> _productBrandRepository;
 
         public ProductService(IGenericRepository<Product> productRepository, IGenericRepository<ProductCategory> productCategoryRepository,
             IGenericRepository<ProductSelectedCategory> productSelectedRepository,
             IGenericRepository<ProductColor> productColorRepository,
             IGenericRepository<ProductFeature> productFeatureRepository,
             IGenericRepository<ProductGallery> productGallery, IGenericRepository<ProductGallery> productGalleryRepository,
-            IGenericRepository<ProductDiscount> productDiscountRepository)
+            IGenericRepository<ProductDiscount> productDiscountRepository,
+            IGenericRepository<ProductBrand> productBrandRepository)
         {
             _productRepository = productRepository;
             _productCategoryRepository = productCategoryRepository;
@@ -40,6 +42,7 @@ namespace Eshop.Application.Services.Implementations
             _productFeatureRepository = productFeatureRepository;
             _productGalleryRepository = productGalleryRepository;
             _productDiscountRepository = productDiscountRepository;
+            _productBrandRepository = productBrandRepository;
         }
 
         #endregion
@@ -856,6 +859,141 @@ namespace Eshop.Application.Services.Implementations
             await _productGalleryRepository.SaveChanges();
 
             return CreateOrEditProductGalleryResult.Success;
+        }
+
+        #endregion
+
+        #region Product Brand
+
+        public async Task<FilterProductBrandDto> FilterProductBrands(FilterProductBrandDto filter)
+        {
+            var query = _productBrandRepository
+                .GetQuery()
+                .AsQueryable();
+
+
+            #region State
+
+            switch (filter.ProductBrandState)
+            {
+                case FilterProductBrandState.All:
+                    query = query.Where(x => !x.IsDelete);
+                    break;
+            }
+
+            switch (filter.ProductBrandOrder)
+            {
+                case FilterProductBrandOrder.CreateDateDescending:
+                    query = query.OrderByDescending(x => x.CreateDate);
+                    break;
+                case FilterProductBrandOrder.CreateDateAscending:
+                    query = query.OrderBy(x => x.CreateDate);
+                    break;
+            }
+
+            #endregion
+
+            #region Filter
+
+            if (!string.IsNullOrEmpty(filter.BrandName))
+            {
+                query = query.Where(x => EF.Functions.Like(x.BrandName, $"%{filter.BrandName}%"));
+            }
+
+            #endregion
+
+            #region Paging
+
+            var productBrandCount = await query.CountAsync();
+
+            var pager = Pager.Build(filter.PageId, productBrandCount, filter.TakeEntity,
+                filter.HowManyShowPageAfterAndBefore);
+
+            var allEntities = await query.Paging(pager).ToListAsync();
+
+
+            #endregion
+
+
+            return filter.SetPaging(pager).SetProductBrand(allEntities);
+        }
+        public async Task<CreateBrandResult> CreateProductBrand(CreateProductBrandDto brand, IFormFile brandImage)
+        {
+            var newProductBrand = new ProductBrand
+            {
+                BrandName = brand.BrandName,
+                Description = brand.Description,
+            };
+
+            if (brandImage != null)
+            {
+                var imageName = Guid.NewGuid().ToString("N") + Path.GetExtension(brandImage.FileName);
+                brandImage.AddImageToServer(imageName, PathExtension.ProductBrandOriginServer,
+                    100, 100, PathExtension.ProductBrandThumbServer);
+
+                newProductBrand.BrandImage = imageName;
+            }
+
+            await _productBrandRepository.AddEntity(newProductBrand);
+            await _productBrandRepository.SaveChanges();
+
+            return CreateBrandResult.Success;
+        }
+        public async Task<EditProductBrandDto> GetProductBrandForEdit(long brandId)
+        {
+            var brand = await _productBrandRepository
+                .GetQuery()
+                .SingleOrDefaultAsync(x => x.Id == brandId);
+
+            if (brand == null)
+            {
+                return null;
+            }
+
+            return new EditProductBrandDto
+            {
+                BrandName = brand.BrandName,
+                Description = brand.Description,
+                BrandImage = brand.BrandImage
+            };
+        }
+        public async Task<EditBrandResult> EditProductBrand(EditProductBrandDto brand, long brandId, IFormFile brandImage)
+        {
+            var mainBrand = await _productBrandRepository
+                .GetQuery()
+                .SingleOrDefaultAsync(x => x.Id == brandId);
+
+            if (mainBrand == null)
+            {
+                return EditBrandResult.NotFound;
+            }
+
+            if (brandImage != null)
+            {
+
+                var imageName = Guid.NewGuid().ToString("N") + Path.GetExtension(brandImage.FileName);
+                brandImage.AddImageToServer(imageName, PathExtension.ProductBrandOriginServer, 100, 100,
+                    PathExtension.ProductBrandThumbServer, mainBrand.BrandImage);
+
+                mainBrand.BrandImage = imageName;
+
+            }
+
+            mainBrand.BrandName = brand.BrandName;
+            mainBrand.Description = brand.Description;
+
+            _productBrandRepository.EditEntity(mainBrand);
+            await _productBrandRepository.SaveChanges();
+
+            return EditBrandResult.Success;
+        }
+        public async Task<List<ProductBrand>> GetAllBrands()
+        {
+            return await _productBrandRepository
+                .GetQuery()
+                .AsQueryable()
+                .Take(50)
+                .ToListAsync();
         }
 
         #endregion

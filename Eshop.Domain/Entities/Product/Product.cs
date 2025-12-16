@@ -14,6 +14,8 @@ namespace Eshop.Domain.Entities.Product
     {
         #region Properties
 
+        public long? ProductBrandId { get; set; }
+
         [Display(Name = "نام محصول")]
         [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
         [MaxLength(300, ErrorMessage = "{0} نمی تواند بیشتر از {1} کاراکتر باشد")]
@@ -57,6 +59,7 @@ namespace Eshop.Domain.Entities.Product
         public ICollection<ProductFeature> ProductFeatures { get; set; }
         public ICollection<ProductGallery> ProductGalleries { get; set; }
         public ICollection<ProductDiscount.ProductDiscount> ProductDiscounts { get; set; }
+        public ProductBrand ProductBrand { get; set; }
 
         #endregion
     }
